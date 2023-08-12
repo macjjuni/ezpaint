@@ -1,14 +1,14 @@
-import FooterStyled from './style'
+import Layout from '@/layout/layout.style'
 
 const blogUrl = import.meta.env.VITE_BLOG
 
 const Footer = () => {
   return (
-    <FooterStyled.Footer>
-      <a target="_blank" rel="noreferrer" href={blogUrl}>
-        kku.dev
+    <Layout.Footer>
+      <a className="footer-link" target="_blank" rel="noreferrer" href={blogUrl}>
+        {new Date().getFullYear()} kkusaeng.
       </a>
-    </FooterStyled.Footer>
+    </Layout.Footer>
   )
 }
 

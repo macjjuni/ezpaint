@@ -1,7 +1,7 @@
-import MainStyled from './style'
+import Layout from '@/layout/layout.style'
 
 const Main = ({ children }: { children: React.ReactNode }) => {
-  return <MainStyled.Main>{children}</MainStyled.Main>
+  return <Layout.Main>{children}</Layout.Main>
 }
 
 export default Main

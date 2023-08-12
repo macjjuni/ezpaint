@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom/client'
-import App from './App'
+import { RouterProvider } from 'react-router-dom'
+import router from './router'
 
-ReactDOM.createRoot(document.getElementById('ez-paint') as HTMLElement).render(<App />)
+ReactDOM.createRoot(document.getElementById('ez-paint') as HTMLElement).render(<RouterProvider router={router} />)

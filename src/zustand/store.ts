@@ -16,7 +16,7 @@ export const useBearStore = create<BearState>()(
         clear: () => set(() => ({ bears: 0 })),
       }),
       {
-        name: 'bear-storage', // persist key
+        name: 'ezPaint', // persist key
       }
     )
   )

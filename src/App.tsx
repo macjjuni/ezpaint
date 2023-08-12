@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@emotion/react'
+import { Outlet } from 'react-router'
 import Header from './layout/Header'
 import Main from './layout/Main/Main'
 import Footer from './layout/Footer'
@@ -10,7 +11,9 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <Header />
-      <Main>Ez Paint</Main>
+      <Main>
+        <Outlet />
+      </Main>
       <Footer />
     </ThemeProvider>
   )

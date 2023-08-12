@@ -60,6 +60,7 @@ const globalStyles = css`
 
   #ez-paint {
     width: 100%;
+    padding: 0 12px;
   }
 
   /* ----- 반응형 Mobile 사이즈 ----- */
