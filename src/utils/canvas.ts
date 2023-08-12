@@ -1,6 +1,6 @@
 // 이미지 붙여넣기 로직
 
-export const pasteImageInCanvas = async (canvas: HTMLCanvasElement) => {
+export const pasteImageInCanvas = async (canvas: HTMLCanvasElement, render: () => void) => {
   try {
     const clipboardItems = await navigator.clipboard.read() // 클립보드 읽어오기(Only HTTPS)
     const imageItem = clipboardItems.find((item) => item.types.some((type) => type.startsWith('image/'))) // 이미지 형식 찾기
@@ -23,6 +23,7 @@ export const pasteImageInCanvas = async (canvas: HTMLCanvasElement) => {
         ctx.drawImage(img, 0, 0) // 캔버스에 이미지 그리기
       }
       img.src = URL.createObjectURL(blob)
+      render()
     }
   } catch (error) {
     console.error('Error pasting image:', error)
