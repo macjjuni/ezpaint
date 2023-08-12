@@ -3,7 +3,7 @@ import { css } from '@emotion/react'
 
 const headerHeight = 48
 const footerHeight = 40
-const mainHieght = `calc(100dvh - (${headerHeight}px + ${footerHeight}px))`
+export const mainHieght = `calc(100dvh - (${headerHeight}px + ${footerHeight}px))`
 
 const layoutStyle = {
   header: css`
