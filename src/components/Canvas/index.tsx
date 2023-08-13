@@ -1,11 +1,7 @@
-import styled from '@emotion/styled'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas } from '@/utils/canvas'
-import DropArea from '@/DropArea'
-
-const CanvasStyled = styled.canvas<{ display?: 'block' | 'none' }>`
-  display: ${(props) => props.display || 'block'};
-`
+import CanvasStyled from './style'
+import DropArea from '@/components/DropArea'
 
 const Canvas = () => {
   const [isImg, setImg] = useState(false)

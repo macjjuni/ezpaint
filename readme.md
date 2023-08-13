@@ -1,4 +1,4 @@
-# EZPaint
+# EZPaint - [📌Link](https://ez-paint.web.app/)
 
 <br>
 

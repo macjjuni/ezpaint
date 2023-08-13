@@ -52,7 +52,11 @@ const DropArea = ({ paintImage }: IDropArea) => {
     <>
       <input ref={inputRef} type="file" id="drop-zone" accept="image/*" multiple={false} onChange={changeInput} style={{ display: 'none' }} />
       <DropAreaStyle className={className} onDragEnter={DragHighlight} onDragOver={DragHighlight} onDragLeave={unDragHighlight} onDrop={DropFile}>
-        Drop Files here!
+        <h2 className="drop-txt">
+          Drop Files here
+          <span className="ellipsis" />
+        </h2>
+
         <Button onClick={clickInput}>파일 선택</Button>
       </DropAreaStyle>
     </>

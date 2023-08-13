@@ -1,12 +1,16 @@
 import styled from '@emotion/styled'
 
-const ButtonStyled = styled.button`
+interface IButtun {
+  fontSize?: number
+}
+
+const ButtonStyled = styled.button<IButtun>`
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px 24px;
-  font-size: 16px;
+  font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '16px')};
   font-weight: 500;
   font-family: inherit;
   border-radius: 8px;
@@ -23,14 +27,4 @@ const ButtonStyled = styled.button`
     outline: 2px auto #9ae4ff;
   }
 `
-
-interface IButton {
-  children: React.ReactNode
-  onClick?: () => void
-}
-
-const Button = ({ children, onClick }: IButton) => {
-  return <ButtonStyled onClick={onClick}>{children}</ButtonStyled>
-}
-
-export default Button
+export default ButtonStyled
