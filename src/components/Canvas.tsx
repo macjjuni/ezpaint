@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { pasteImageInCanvas, copyImageInCanvas } from '@/utils/canvas'
+import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas } from '@/utils/canvas'
+import DropArea from '@/DropArea'
 
 const CanvasStyled = styled.canvas<{ display?: 'block' | 'none' }>`
   display: ${(props) => props.display || 'block'};
@@ -14,7 +15,7 @@ const Canvas = () => {
     setImg(true)
   }, [])
 
-  const pasteCheck = (e: KeyboardEvent) => {
+  const pasteCheck = useCallback((e: KeyboardEvent) => {
     // Ctrl || Command 키 + 'v' 키 다운 이벤트 감지해서 이미지 붙어넣기
     if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
       if (!canvasRef.current) return
@@ -23,6 +24,12 @@ const Canvas = () => {
       if (!canvasRef.current) return
       copyImageInCanvas(canvasRef.current)
     }
+  }, [])
+
+  const paintImage = (imageFile: File) => {
+    if (!canvasRef.current) return
+    paintImageInCanvas(canvasRef.current, imageFile)
+    setImg(true)
   }
 
   useEffect(() => {
@@ -35,7 +42,7 @@ const Canvas = () => {
   return (
     <>
       <CanvasStyled ref={canvasRef} display={isImg ? 'block' : 'none'} />
-      {!isImg && 'Paste...'}
+      {!isImg && <DropArea paintImage={paintImage} />}
     </>
   )
 }

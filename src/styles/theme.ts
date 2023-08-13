@@ -9,4 +9,6 @@ const theme = {
   },
 }
 
+export const dropStyleName = 'highlight'
+
 export default theme
