@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas } from '@/utils/canvas'
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
+import Toolbar from '@/components/Toolbar'
 
 const Canvas = () => {
   const [isImg, setImg] = useState(false)
@@ -28,6 +29,20 @@ const Canvas = () => {
     setImg(true)
   }
 
+  const resetCanvas = useCallback(() => {
+    if (canvasRef.current === null) return
+    const ctx = canvasRef.current.getContext('2d')
+    if (ctx === null) {
+      console.error('ctx is null')
+      return
+    }
+    ctx.clearRect(0, 0, 0, 0)
+    ctx.beginPath()
+    canvasRef.current.width = 0
+    canvasRef.current.height = 0
+    setImg(false)
+  }, [])
+
   useEffect(() => {
     window.addEventListener('keydown', pasteCheck)
     return () => {
@@ -37,8 +52,9 @@ const Canvas = () => {
 
   return (
     <>
-      <CanvasStyled ref={canvasRef} display={isImg ? 'block' : 'none'} />
-      {!isImg && <DropArea paintImage={paintImage} />}
+      <Toolbar isRender={isImg} resetCanvas={resetCanvas} />
+      <DropArea isRender={!isImg} paintImage={paintImage} />
+      <CanvasStyled ref={canvasRef} width="0" height="0" />
     </>
   )
 }

@@ -27,13 +27,15 @@ const drawCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
     img.onerror = (e) => {
       console.error('이미지 로드 오류', e)
     }
-  } catch (error) {
-    console.error('An error occurred while painting image:', error)
+  } catch (err) {
+    console.error('An error occurred while painting image:', err)
   }
 }
 
 // 이미지 복사 로직
 export const copyImageInCanvas = async (canvas: HTMLCanvasElement) => {
+  if (canvas.width === 0) return
+
   const blob: Blob | null = await new Promise((resolve) => {
     canvas.toBlob(resolve, 'image/png', 1)
   })
@@ -46,8 +48,8 @@ export const copyImageInCanvas = async (canvas: HTMLCanvasElement) => {
   try {
     const data = [new ClipboardItem({ 'image/png': blob })]
     await navigator.clipboard.write(data)
-  } catch (e) {
-    console.error('Error copying image to clipboard:', e)
+  } catch (err) {
+    console.error('Error copying image to clipboard:', err)
   }
 }
 
@@ -62,8 +64,8 @@ export const pasteImageInCanvas = async (canvas: HTMLCanvasElement, render: () =
       drawCanvas(canvas, blob)
       render()
     }
-  } catch (error) {
-    console.error('Error pasting image:', error)
+  } catch (err) {
+    console.error('Error pasting image:', err)
   }
 }
 
@@ -73,7 +75,7 @@ export const paintImageInCanvas = async (canvas: HTMLCanvasElement, ImageFile: F
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('Canvas context is not available.')
     drawCanvas(canvas, ImageFile)
-  } catch (error) {
-    console.error('An error occurred while painting image:', error)
+  } catch (err) {
+    console.error('An error occurred while painting image:', err)
   }
 }

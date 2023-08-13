@@ -3,8 +3,8 @@ import { devtools, persist } from 'zustand/middleware'
 
 interface BearState {
   bears: number
-  increase: (by: number) => void
-  clear: () => void
+  color: string
+  setColor: (color: string) => void
 }
 
 export const useBearStore = create<BearState>()(
@@ -12,8 +12,8 @@ export const useBearStore = create<BearState>()(
     persist(
       (set) => ({
         bears: 0,
-        increase: (by) => set((state) => ({ bears: state.bears + by })),
-        clear: () => set(() => ({ bears: 0 })),
+        color: 'red',
+        setColor: (color) => set(() => ({ color })),
       }),
       {
         name: 'ezPaint', // persist key

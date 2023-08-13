@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback, type DragEvent, ChangeEvent } from 'react'
-import DropAreaStyle from './style'
+import DropAreaStyled from './style'
 import Button from '@/components/Button'
 import { dropStyleName } from '@/styles/theme'
 
 interface IDropArea {
+  isRender: boolean
   paintImage: (img: File) => void
 }
 
-const DropArea = ({ paintImage }: IDropArea) => {
+const DropArea = ({ isRender, paintImage }: IDropArea) => {
   const inputRef = useRef<HTMLInputElement>(null) // Input Element Ref
   const [className, setClassName] = useState<'highlight' | ''>('')
 
@@ -47,20 +48,27 @@ const DropArea = ({ paintImage }: IDropArea) => {
       paintImage(file)
     }
   }
+  if (isRender)
+    return (
+      <>
+        <input ref={inputRef} type="file" id="drop-zone" accept="image/*" multiple={false} onChange={changeInput} style={{ display: 'none' }} />
+        <DropAreaStyled.DropArea className={className} onDragEnter={DragHighlight} onDragOver={DragHighlight} onDragLeave={unDragHighlight} onDrop={DropFile}>
+          <div className="drop-text-wrapper">
+            <h2 className="drop-txt ellipsis">Drop Files here</h2>
+            <h2 className="drop-txt">&</h2>
+            <h2 className="drop-txt">Paste from Clipboard&#40;Ctrl + v&#41;</h2>
+          </div>
 
-  return (
-    <>
-      <input ref={inputRef} type="file" id="drop-zone" accept="image/*" multiple={false} onChange={changeInput} style={{ display: 'none' }} />
-      <DropAreaStyle className={className} onDragEnter={DragHighlight} onDragOver={DragHighlight} onDragLeave={unDragHighlight} onDrop={DropFile}>
-        <h2 className="drop-txt">
-          Drop Files here
-          <span className="ellipsis" />
-        </h2>
-
-        <Button onClick={clickInput}>파일 선택</Button>
-      </DropAreaStyle>
-    </>
-  )
+          <Button fontSize={16} onClick={clickInput}>
+            <DropAreaStyled.ButtonWrapper>
+              <img src="/images/image-icon.webp" alt="button icon" width="36" height="36" />
+              <span>이미지 선택</span>
+            </DropAreaStyled.ButtonWrapper>
+          </Button>
+        </DropAreaStyled.DropArea>
+      </>
+    )
+  else return <></>
 }
 
 export default DropArea

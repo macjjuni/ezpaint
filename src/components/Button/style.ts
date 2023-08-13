@@ -2,6 +2,14 @@ import styled from '@emotion/styled'
 
 interface IButtun {
   fontSize?: number
+  padding?: string
+  width?: number
+  height?: number
+  bg?: string
+  borderRadius?: number
+  borderColor?: string
+  borderWidth?: string
+  focus?: string
 }
 
 const ButtonStyled = styled.button<IButtun>`
@@ -9,22 +17,23 @@ const ButtonStyled = styled.button<IButtun>`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px 24px;
-  font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '16px')};
+  width: ${({ width }) => (width ? `${width}px` : 'auto')};
+  height: ${({ height }) => (height ? `${height}px` : 'auto')};
+  padding: ${({ padding }) => padding || '10px 20px'};
+  font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '14px')};
   font-weight: 500;
   font-family: inherit;
-  border-radius: 8px;
-  border: 2px solid #eee;
-  background-color: inherit;
+  color: #fff;
+  border: none;
+  border-radius: ${({ borderRadius }) => borderRadius || '6'}px;
+  border-width: ${({ borderWidth }) => (borderWidth ? `${borderWidth}px` : 'none')};
+  border-color: ${({ borderColor }) => borderColor || 'none'};
+  background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.5)'};
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s;
 
   &:hover {
-    border-color: #9ae4ff;
-  }
-  &:focus,
-  &:focus-visible {
-    outline: 2px auto #9ae4ff;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   }
 `
 export default ButtonStyled
