@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { BsPencilFill, BsCrop, BsTrash } from 'react-icons/bs'
 import { useBearStore } from '@/zustand/store'
 import ToolbarStyled from './style'
@@ -10,28 +10,46 @@ interface IToolbar {
   resetCanvas: () => void
 }
 
+interface IRender {
+  picker: boolean
+  pen: boolean
+  crop: boolean
+}
+
+const renderClear: IRender = {
+  picker: false,
+  pen: false,
+  crop: false,
+}
+
 const Toolbar = ({ isRender, resetCanvas }: IToolbar) => {
   const { color } = useBearStore((state) => state)
-  const [isColorPicker, setColorPicker] = useState(false)
+  const [render, setRender] = useState<IRender>(renderClear)
 
-  const togglePicker = useCallback(() => {
-    setColorPicker((prev) => !prev)
-  }, [isColorPicker])
+  const togglePicker = () => {
+    setRender((prev) => ({ ...renderClear, picker: !prev.picker }))
+  }
+  const togglePen = () => {
+    setRender((prev) => ({ ...renderClear, pen: !prev.pen }))
+  }
+  const toggleCrop = () => {
+    setRender((prev) => ({ ...renderClear, crop: !prev.crop }))
+  }
 
   return (
     <ToolbarStyled.Wrap active={isRender}>
-      {isColorPicker && <ColorPicker renderToggle={togglePicker} />}
+      {render.picker && <ColorPicker renderToggle={togglePicker} />}
       <ToolbarStyled.List>
-        <Button className="colorful" width={44} height={44} padding="0" borderRadius={4} onClick={togglePicker}>
+        <Button onClick={togglePicker} className={render.picker ? 'active colorful' : 'colorful'} width={44} height={44} padding="0" borderRadius={4}>
           <ToolbarStyled.Color className="colorful" color={color} />
         </Button>
-        <Button width={44} height={44} padding="0" borderRadius={4}>
+        <Button onClick={togglePen} className={render.pen ? 'active' : ''} width={44} height={44} padding="0" borderRadius={4}>
           <BsPencilFill fontSize={24} />
         </Button>
-        <Button width={44} height={44} padding="0" borderRadius={4}>
+        <Button onClick={toggleCrop} className={render.crop ? 'active' : ''} width={44} height={44} padding="0" borderRadius={4}>
           <BsCrop fontSize={24} />
         </Button>
-        <Button width={44} height={44} padding="0" borderRadius={4} onClick={resetCanvas}>
+        <Button onClick={resetCanvas} width={44} height={44} padding="0" borderRadius={4}>
           <BsTrash fontSize={24} />
         </Button>
       </ToolbarStyled.List>

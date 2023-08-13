@@ -29,6 +29,9 @@ const ToolbarStyled = {
     border-radius: 2px;
     padding: 0;
     margin: 0;
+    & .active {
+      background-color: rgba(0, 0, 0, 0.77);
+    }
   `,
   Color: styled.span<{ color: string }>`
     width: 20px;

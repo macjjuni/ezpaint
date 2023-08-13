@@ -28,9 +28,9 @@ const ButtonStyled = styled.button<IButtun>`
   border-radius: ${({ borderRadius }) => borderRadius || '6'}px;
   border-width: ${({ borderWidth }) => (borderWidth ? `${borderWidth}px` : 'none')};
   border-color: ${({ borderColor }) => borderColor || 'none'};
-  background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.5)'};
+  background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
-  transition: all 0.25s;
+  transition: box-shadow 0.25s;
 
   &:hover {
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;

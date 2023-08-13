@@ -12,6 +12,7 @@ const DropArea = ({ isRender, paintImage }: IDropArea) => {
   const inputRef = useRef<HTMLInputElement>(null) // Input Element Ref
   const [className, setClassName] = useState<'highlight' | ''>('')
 
+  // 이미지 선택 이벤트
   const clickInput = useCallback(() => {
     if (!inputRef.current) return
     inputRef.current.click()
@@ -22,7 +23,7 @@ const DropArea = ({ isRender, paintImage }: IDropArea) => {
     e.stopPropagation()
   }, [])
 
-  // Drop CSS 효과
+  // 파일 Drop CSS 효과 이벤트
   const DragHighlight = useCallback((e: DragEvent<HTMLDivElement>) => {
     preventDefaults(e)
     setClassName(dropStyleName)
@@ -32,6 +33,7 @@ const DropArea = ({ isRender, paintImage }: IDropArea) => {
     setClassName('')
   }, [])
 
+  // 파일 Drop 이벤트
   const DropFile = useCallback((e: DragEvent<HTMLDivElement>) => {
     preventDefaults(e)
     setClassName('')
@@ -61,7 +63,7 @@ const DropArea = ({ isRender, paintImage }: IDropArea) => {
 
           <Button fontSize={16} onClick={clickInput}>
             <DropAreaStyled.ButtonWrapper>
-              <img src="/images/image-icon.webp" alt="button icon" width="36" height="36" />
+              <img src="/images/image-icon.webp" alt="button icon" width="32" height="32" />
               <span>이미지 선택</span>
             </DropAreaStyled.ButtonWrapper>
           </Button>
