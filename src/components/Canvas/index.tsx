@@ -24,8 +24,18 @@ const Canvas = () => {
     currentIndex.current = 0
   }, [])
 
-  // 복구용 캔버스 저장
-  const saveCanvas = useCallback(() => {
+  // 캔버스 복사 기능
+  const copyCanvas = () => {
+    if (!canvasRef.current) return
+    copyImageInCanvas(canvasRef.current)
+    canvasRef.current?.classList.add('copy-done')
+    setTimeout(() => {
+      canvasRef.current?.classList.remove('copy-done')
+    }, 220)
+  }
+
+  // 이전 작업 캔버스 복구용 변수에 저장
+  const recoverSaveCanvas = useCallback(() => {
     if (canvasRef.current === null) return
     const tempImg = canvasRef.current?.toDataURL('image/jpeg', 1)
     canvasHistory.push(tempImg)
@@ -42,29 +52,19 @@ const Canvas = () => {
     canvasHistory.splice(canvasHistory.length - 1, 1) // 마지막 기록 삭제
   }, [])
 
-  // 이미지 다운로드
-  const download = useCallback(() => {
+  // 캔버스 이미지 다운로드
+  const downCanvas = useCallback((e?: KeyboardEvent) => {
+    e?.preventDefault()
     if (canvasRef.current === null) return
     downloadImage(canvasRef.current)
   }, [])
 
-  // 클립보드에 있는 이미지 붙여넣기
-  const keyCheck = useCallback((e: KeyboardEvent) => {
-    // Ctrl || Command 키 + 'v' 키 다운 이벤트 감지해서 이미지 붙어넣기
-    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-      if (!canvasRef.current) return
-      pasteImageInCanvas(canvasRef.current, () => {
-        setImg(true)
-      })
-      clearIndex()
-    } else if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      if (!canvasRef.current) return
-      copyImageInCanvas(canvasRef.current)
-    } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') undoCanvas()
-    else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-      download()
-      e.preventDefault()
-    }
+  const pasteCanvas = useCallback(() => {
+    if (canvasRef.current === null) return
+    pasteImageInCanvas(canvasRef.current, () => {
+      setImg(true)
+    })
+    clearIndex()
   }, [])
 
   // 캔버스에 이미지 넣기
@@ -74,29 +74,13 @@ const Canvas = () => {
     setImg(true)
   }
 
-  // 캔버스에 이미지 초기화
-  const resetCanvas = useCallback(() => {
-    if (canvasRef.current === null) return
-    const ctx = canvasRef.current.getContext('2d')
-    if (ctx === null) {
-      console.error('ctx is null')
-      return
-    }
-    ctx.clearRect(0, 0, 0, 0) // 캔버스 초기화
-    ctx.beginPath()
-    canvasRef.current.width = 0
-    canvasRef.current.height = 0
-    clearIndex()
-    setImg(false)
-  }, [])
-
   // 펜 그리기 시작
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (!canvasRef.current || tool !== 'pen') return
     const ctx = canvasRef.current.getContext('2d')
     if (!ctx) return
 
-    saveCanvas()
+    recoverSaveCanvas()
     setIsDrawing(true)
     setLastX(e.nativeEvent.offsetX)
     setLastY(e.nativeEvent.offsetY)
@@ -125,6 +109,22 @@ const Canvas = () => {
     setIsDrawing(false)
   }
 
+  // 캔버스에 이미지 초기화
+  const resetCanvas = useCallback(() => {
+    if (canvasRef.current === null) return
+    const ctx = canvasRef.current.getContext('2d')
+    if (ctx === null) {
+      console.error('ctx is null')
+      return
+    }
+    ctx.clearRect(0, 0, 0, 0) // 캔버스 초기화
+    ctx.beginPath()
+    canvasRef.current.width = 0
+    canvasRef.current.height = 0
+    clearIndex()
+    setImg(false)
+  }, [])
+
   // 캔버스 이전으로 되돌리기
   // const redoCanvas = () => {
   //   if (canvasRef.current === null) return
@@ -133,6 +133,15 @@ const Canvas = () => {
   //   undoImageInCanvas(canvasRef.current, canvasHistory[redoIdx])
   //   currentIndex.current = redoIdx
   // }
+
+  // 클립보드에 있는 이미지 붙여넣기
+  const keyCheck = useCallback((e: KeyboardEvent) => {
+    // Ctrl || Command 키 + 'v' 키 다운 이벤트 감지해서 이미지 붙어넣기
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') pasteCanvas()
+    else if ((e.ctrlKey || e.metaKey) && e.key === 'c') copyCanvas()
+    else if ((e.ctrlKey || e.metaKey) && e.key === 'z') undoCanvas()
+    else if ((e.ctrlKey || e.metaKey) && e.key === 's') downCanvas(e)
+  }, [])
 
   useEffect(() => {
     window.addEventListener('keydown', keyCheck)
@@ -143,7 +152,7 @@ const Canvas = () => {
 
   return (
     <>
-      <Toolbar isRender={isImg} resetCanvas={resetCanvas} undoCanvas={undoCanvas} download={download} />
+      <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} download={downCanvas} copy={copyCanvas} />
       <DropArea isRender={!isImg} paintImage={paintImage} />
       <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
     </>

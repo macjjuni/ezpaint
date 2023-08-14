@@ -1,6 +1,7 @@
 import { BsPencilFill, BsCrop, BsTrash } from 'react-icons/bs'
 import { FiDownload } from 'react-icons/fi'
 import { LuUndo2 } from 'react-icons/lu'
+import { BiSolidCopy } from 'react-icons/bi'
 import { useBearStore } from '@/zustand/store'
 import ToolbarStyled from './style'
 import ColorPicker from '../ColorPicker'
@@ -9,12 +10,13 @@ import Button from '@/components/Button'
 
 interface IToolbar {
   isRender: boolean
-  resetCanvas: () => void
-  undoCanvas: () => void
+  reset: () => void
+  undo: () => void
   download: () => void
+  copy: () => void
 }
 
-const Toolbar = ({ isRender, resetCanvas, undoCanvas, download }: IToolbar) => {
+const Toolbar = ({ isRender, reset, undo, download, copy }: IToolbar) => {
   const { color, thick, tool, setTool } = useBearStore((state) => state)
 
   const togglePicker = () => {
@@ -52,17 +54,22 @@ const Toolbar = ({ isRender, resetCanvas, undoCanvas, download }: IToolbar) => {
         <Button onClick={toggleCrop} className={tool === 'crop' ? 'active' : ''} width={44} height={44} padding="0" borderRadius={4}>
           <BsCrop fontSize={24} />
         </Button>
-        <Button onClick={undoCanvas} width={44} height={44} padding="0" borderRadius={4}>
+
+        <Button onClick={undo} width={44} height={44} padding="0" borderRadius={4}>
           <LuUndo2 fontSize={24} />
         </Button>
-        <Button onClick={download} width={44} height={44} padding="0" borderRadius={4}>
-          <FiDownload fontSize={24} color="#fff" />
+        <Button onClick={copy} width={44} height={44} padding="0" borderRadius={4}>
+          <BiSolidCopy fontSize={24} />
         </Button>
+        <Button onClick={download} width={44} height={44} padding="0" borderRadius={4}>
+          <FiDownload fontSize={24} />
+        </Button>
+
         {/* <Button onClick={redoCanvas} width={44} height={44} padding="0" borderRadius={4}>
           <LuRedo2 fontSize={24} />
         </Button> */}
 
-        <Button onClick={resetCanvas} width={44} height={44} padding="0" borderRadius={4}>
+        <Button onClick={reset} width={44} height={44} padding="0" borderRadius={4}>
           <BsTrash fontSize={24} />
         </Button>
       </ToolbarStyled.Right>

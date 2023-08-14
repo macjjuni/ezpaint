@@ -31,7 +31,7 @@ const ButtonStyled = styled.button<IButtun>`
   border-color: ${({ borderColor }) => borderColor || 'none'};
   background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
-  transition: box-shadow, transform, background 0.22s;
+  transition: all 0.07s ease-in-out;
 
   &:hover {
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -39,6 +39,7 @@ const ButtonStyled = styled.button<IButtun>`
 
   &:active {
     transform: scale(0.9);
+    background-color: rgba(0, 0, 0, 0.77);
   }
 `
 export default ButtonStyled
