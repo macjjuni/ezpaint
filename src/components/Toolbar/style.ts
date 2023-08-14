@@ -21,7 +21,12 @@ const ToolbarStyled = {
 
     ${({ active }) => (!active ? activeStyle : '')}
   `,
-  List: styled.div`
+  Left: styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  `,
+  Right: styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,6 +44,13 @@ const ToolbarStyled = {
     border: 2px solid #fff;
     background-color: ${({ color }) => color};
     border-radius: 50%;
+  `,
+  Thick: styled.span<{ thick: number; color: string }>`
+    width: 75%;
+    background-color: ${({ color }) => color};
+    height: ${({ thick }) => thick}px;
+    border-radius: 3px;
+    border: 2px solid #fff;
   `,
 }
 

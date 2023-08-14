@@ -19,6 +19,7 @@ const ButtonStyled = styled.button<IButtun>`
   align-items: center;
   width: ${({ width }) => (width ? `${width}px` : 'auto')};
   height: ${({ height }) => (height ? `${height}px` : 'auto')};
+  margin: 0;
   padding: ${({ padding }) => padding || '10px 20px'};
   font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '14px')};
   font-weight: 500;

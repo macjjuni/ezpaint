@@ -1,5 +1,5 @@
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
-const drawCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
+export const drawImageInCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
   if (canvas === null) {
     console.error('canvas is null')
     return
@@ -61,7 +61,7 @@ export const pasteImageInCanvas = async (canvas: HTMLCanvasElement, render: () =
 
     if (imageItem) {
       const blob = await imageItem.getType('image/png')
-      drawCanvas(canvas, blob)
+      drawImageInCanvas(canvas, blob)
       render()
     }
   } catch (err) {
@@ -74,8 +74,41 @@ export const paintImageInCanvas = async (canvas: HTMLCanvasElement, ImageFile: F
   try {
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('Canvas context is not available.')
-    drawCanvas(canvas, ImageFile)
+    drawImageInCanvas(canvas, ImageFile)
   } catch (err) {
     console.error('An error occurred while painting image:', err)
+  }
+}
+
+interface IXY {
+  x: number
+  y: number
+}
+
+export const drawCanvas = (canvas: HTMLCanvasElement, moveToXY: IXY, lineToXY: IXY) => {
+  const ctx = canvas.getContext('2d')
+  if (ctx === null) {
+    console.error('ctx is null')
+    return
+  }
+
+  ctx.beginPath()
+  ctx.moveTo(moveToXY.x, moveToXY.y)
+  ctx.lineTo(lineToXY.x, lineToXY.y)
+  ctx.stroke()
+}
+
+export const undoImageInCanvas = (canvas: HTMLCanvasElement, dataUrl: string) => {
+  const ctx = canvas.getContext('2d')
+  if (ctx === null) {
+    console.error('ctx is null')
+    return
+  }
+
+  const img = new Image()
+  img.src = dataUrl
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
   }
 }
