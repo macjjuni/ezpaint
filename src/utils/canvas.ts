@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
 export const drawImageInCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
   if (canvas === null) {
@@ -111,4 +113,25 @@ export const undoImageInCanvas = (canvas: HTMLCanvasElement, dataUrl: string) =>
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
   }
+}
+
+export const downloadImage = async (canvas: HTMLCanvasElement) => {
+  const aTag = document.createElement('a')
+
+  canvas.toBlob(
+    (blob) => {
+      if (blob === null) {
+        console.error('download error!')
+        return
+      }
+      const url = URL.createObjectURL(blob)
+      aTag.href = url
+      aTag.target = '_blank'
+      aTag.download = `${moment().format('yyyy-MM-DD_HH:mm:ss')}.png`
+      aTag.click()
+      URL.revokeObjectURL(url)
+    },
+    'image/png',
+    1
+  )
 }

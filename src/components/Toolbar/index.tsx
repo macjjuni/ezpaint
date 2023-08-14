@@ -1,4 +1,5 @@
 import { BsPencilFill, BsCrop, BsTrash } from 'react-icons/bs'
+import { FiDownload } from 'react-icons/fi'
 import { LuUndo2 } from 'react-icons/lu'
 import { useBearStore } from '@/zustand/store'
 import ToolbarStyled from './style'
@@ -10,9 +11,10 @@ interface IToolbar {
   isRender: boolean
   resetCanvas: () => void
   undoCanvas: () => void
+  download: () => void
 }
 
-const Toolbar = ({ isRender, resetCanvas, undoCanvas }: IToolbar) => {
+const Toolbar = ({ isRender, resetCanvas, undoCanvas, download }: IToolbar) => {
   const { color, thick, tool, setTool } = useBearStore((state) => state)
 
   const togglePicker = () => {
@@ -24,10 +26,11 @@ const Toolbar = ({ isRender, resetCanvas, undoCanvas }: IToolbar) => {
     else setTool('pen')
   }
   const togglePen = () => {
-    setTool(tool === '' ? 'pen' : '')
+    if (tool !== 'pen') setTool('pen')
+    else setTool('pen')
   }
   const toggleCrop = () => {
-    setTool(tool === '' ? 'crop' : '')
+    setTool('crop')
   }
 
   return (
@@ -51,6 +54,9 @@ const Toolbar = ({ isRender, resetCanvas, undoCanvas }: IToolbar) => {
         </Button>
         <Button onClick={undoCanvas} width={44} height={44} padding="0" borderRadius={4}>
           <LuUndo2 fontSize={24} />
+        </Button>
+        <Button onClick={download} width={44} height={44} padding="0" borderRadius={4}>
+          <FiDownload fontSize={24} color="#fff" />
         </Button>
         {/* <Button onClick={redoCanvas} width={44} height={44} padding="0" borderRadius={4}>
           <LuRedo2 fontSize={24} />

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, undoImageInCanvas } from '@/utils/canvas'
+import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, undoImageInCanvas, downloadImage } from '@/utils/canvas'
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
 import Toolbar from '@/components/Toolbar'
@@ -42,6 +42,12 @@ const Canvas = () => {
     canvasHistory.splice(canvasHistory.length - 1, 1) // 마지막 기록 삭제
   }, [])
 
+  // 이미지 다운로드
+  const download = useCallback(() => {
+    if (canvasRef.current === null) return
+    downloadImage(canvasRef.current)
+  }, [])
+
   // 클립보드에 있는 이미지 붙여넣기
   const keyCheck = useCallback((e: KeyboardEvent) => {
     // Ctrl || Command 키 + 'v' 키 다운 이벤트 감지해서 이미지 붙어넣기
@@ -55,6 +61,10 @@ const Canvas = () => {
       if (!canvasRef.current) return
       copyImageInCanvas(canvasRef.current)
     } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') undoCanvas()
+    else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      download()
+      e.preventDefault()
+    }
   }, [])
 
   // 캔버스에 이미지 넣기
@@ -133,7 +143,7 @@ const Canvas = () => {
 
   return (
     <>
-      <Toolbar isRender={isImg} resetCanvas={resetCanvas} undoCanvas={undoCanvas} />
+      <Toolbar isRender={isImg} resetCanvas={resetCanvas} undoCanvas={undoCanvas} download={download} />
       <DropArea isRender={!isImg} paintImage={paintImage} />
       <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
     </>
