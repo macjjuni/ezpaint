@@ -46,7 +46,7 @@ const ToolbarStyled = {
     border-radius: 50%;
   `,
   Thick: styled.span<{ thick: number; color: string }>`
-    width: 75%;
+    width: 70%;
     background-color: ${({ color }) => color};
     height: ${({ thick }) => thick}px;
     border-radius: 3px;

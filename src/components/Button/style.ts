@@ -31,10 +31,14 @@ const ButtonStyled = styled.button<IButtun>`
   border-color: ${({ borderColor }) => borderColor || 'none'};
   background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
-  transition: box-shadow 0.25s;
+  transition: box-shadow, transform, background 0.22s;
 
   &:hover {
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `
 export default ButtonStyled
