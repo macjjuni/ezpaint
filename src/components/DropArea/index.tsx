@@ -38,8 +38,9 @@ const DropArea = ({ isRender, paintImage }: IDropArea) => {
     preventDefaults(e)
     setClassName('')
 
-    const file: File = e.dataTransfer.files[0] // 한 개 파일만 허용
-    const isImg = file.type.startsWith('image/') // 이미지 파일 형식 확인
+    const file: File = e?.dataTransfer?.files[0] // 한 개 파일만 허용
+
+    const isImg = file?.type?.startsWith('image/') // 이미지 파일 형식 확인
     if (isImg) paintImage(file)
   }, [])
 

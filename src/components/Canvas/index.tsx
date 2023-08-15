@@ -8,46 +8,78 @@ import { useBearStore } from '@/zustand/store'
 const canvasHistory: string[] = []
 
 const Canvas = () => {
-  const { color, thick, tool } = useBearStore((state) => state) // 현재 색상
+  const { color, thick, tool, setTool } = useBearStore((state) => state) // 현재 색상
   const [isImg, setImg] = useState(false) // 캔버스에 이미지 표시 여부, false인 경우 <DropArea /> 표시
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const currentIndex = useRef<number>(0) // 드로윙 위치, canvasHistory에 사용
 
-  // Drawing 변수
+  // 드로잉 변수
   const [isDrawing, setIsDrawing] = useState(false)
   const [lastX, setLastX] = useState(0)
   const [lastY, setLastY] = useState(0)
 
-  // 현재 상태 초기화
-  const clearIndex = useCallback(() => {
-    currentIndex.current = 0
+  // 캔버스 가져오기
+  const getCanvas = useCallback(() => {
+    if (canvasRef.current === null) {
+      console.error('not found canvas!')
+      return
+    }
+    return canvasRef.current
+  }, [])
+
+  // 캔버스 컨텍스트 가져오기
+  const getCtx = useCallback(() => {
+    const ctx = getCanvas()?.getContext('2d')
+    if (!ctx) {
+      console.error('ctx is null')
+      return
+    }
+    return ctx
   }, [])
 
   // 캔버스 복사 기능
-  const copyCanvas = () => {
-    if (!canvasRef.current) return
-    copyImageInCanvas(canvasRef.current)
-    canvasRef.current?.classList.add('copy-done')
+  const copyCanvas = useCallback(() => {
+    const canvas = getCanvas()
+    if (!canvas) return
+    copyImageInCanvas(canvas)
+    canvas.classList.add('copy-done')
     setTimeout(() => {
-      canvasRef.current?.classList.remove('copy-done')
+      canvas.classList.remove('copy-done')
     }, 220)
-  }
+  }, [])
+
+  // 캔버스에 초기화
+  const resetCanvas = useCallback(() => {
+    const canvas = getCanvas()
+    const ctx = getCtx()
+    if (!ctx || !canvas) return
+    ctx.clearRect(0, 0, 0, 0) // 캔버스 초기화
+    ctx.beginPath()
+    canvas.width = 0
+    canvas.height = 0
+
+    currentIndex.current = 0 // 순서 초기화
+    canvasHistory.splice(0) // 백업 데이터 초기화
+    setImg(false)
+  }, [])
 
   // 이전 작업 캔버스 복구용 변수에 저장
   const recoverSaveCanvas = useCallback(() => {
-    if (canvasRef.current === null) return
-    const tempImg = canvasRef.current?.toDataURL('image/jpeg', 1)
+    const canvas = getCanvas()
+    if (!canvas) return
+    const tempImg = canvas.toDataURL('image/jpeg', 1)
     canvasHistory.push(tempImg)
     currentIndex.current += 1
   }, [])
 
   // 캔버스 이전으로 되돌리기
   const undoCanvas = useCallback(() => {
-    if (canvasRef.current === null) return
+    const canvas = getCanvas()
+    if (!canvas) return
     if (currentIndex.current === 0) return
     const undoIdx = currentIndex.current - 1
-    undoImageInCanvas(canvasRef.current, canvasHistory[undoIdx])
+    undoImageInCanvas(canvas, canvasHistory[undoIdx])
     currentIndex.current = undoIdx
     canvasHistory.splice(canvasHistory.length - 1, 1) // 마지막 기록 삭제
   }, [])
@@ -55,30 +87,34 @@ const Canvas = () => {
   // 캔버스 이미지 다운로드
   const downCanvas = useCallback((e?: KeyboardEvent) => {
     e?.preventDefault()
-    if (canvasRef.current === null) return
-    downloadImage(canvasRef.current)
+    const canvas = getCanvas()
+    if (!canvas) return
+    downloadImage(canvas)
   }, [])
 
+  // 캔버스 클립보드 이미지 붙여넣기
   const pasteCanvas = useCallback(() => {
-    if (canvasRef.current === null) return
-    pasteImageInCanvas(canvasRef.current, () => {
+    const canvas = getCanvas()
+    if (!canvas) return
+    pasteImageInCanvas(canvas, () => {
       setImg(true)
     })
-    clearIndex()
+    setTool('pen') // 기본 툴 설정
   }, [])
 
   // 캔버스에 이미지 넣기
   const paintImage = (imageFile: File) => {
-    if (canvasRef.current === null) return
-    paintImageInCanvas(canvasRef.current, imageFile)
+    const canvas = getCanvas()
+    if (!canvas) return
+    paintImageInCanvas(canvas, imageFile)
+    setTool('pen') // 기본 툴 설정
     setImg(true)
   }
 
   // 펜 그리기 시작
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (!canvasRef.current || tool !== 'pen') return
-    const ctx = canvasRef.current.getContext('2d')
-    if (!ctx) return
+    const ctx = getCtx()
+    if (!ctx || tool !== 'pen') return
 
     recoverSaveCanvas()
     setIsDrawing(true)
@@ -92,13 +128,13 @@ const Canvas = () => {
 
   // 펜 그리는 중
   const draw = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (!isDrawing || canvasRef.current === null) return
-    const ctx = canvasRef.current.getContext('2d')
-    if (ctx === null) return
+    const canvas = getCanvas()
+    const ctx = getCtx()
+    if (!isDrawing || !ctx || !canvas) return
 
     const moveToXY = { x: lastX, y: lastY }
     const lineToXY = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
-    drawCanvas(canvasRef.current, moveToXY, lineToXY)
+    drawCanvas(canvas, moveToXY, lineToXY)
 
     setLastX(e.nativeEvent.offsetX)
     setLastY(e.nativeEvent.offsetY)
@@ -109,22 +145,6 @@ const Canvas = () => {
     setIsDrawing(false)
   }
 
-  // 캔버스에 이미지 초기화
-  const resetCanvas = useCallback(() => {
-    if (canvasRef.current === null) return
-    const ctx = canvasRef.current.getContext('2d')
-    if (ctx === null) {
-      console.error('ctx is null')
-      return
-    }
-    ctx.clearRect(0, 0, 0, 0) // 캔버스 초기화
-    ctx.beginPath()
-    canvasRef.current.width = 0
-    canvasRef.current.height = 0
-    clearIndex()
-    setImg(false)
-  }, [])
-
   // 캔버스 이전으로 되돌리기
   // const redoCanvas = () => {
   //   if (canvasRef.current === null) return
@@ -134,7 +154,6 @@ const Canvas = () => {
   //   currentIndex.current = redoIdx
   // }
 
-  // 클립보드에 있는 이미지 붙여넣기
   const keyCheck = useCallback((e: KeyboardEvent) => {
     // Ctrl || Command 키 + 'v' 키 다운 이벤트 감지해서 이미지 붙어넣기
     if ((e.ctrlKey || e.metaKey) && e.key === 'v') pasteCanvas()

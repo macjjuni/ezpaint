@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { defaultPadding } from '@/layout/layout.style'
 
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
 export const drawImageInCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
@@ -17,13 +18,19 @@ export const drawImageInCanvas = (canvas: HTMLCanvasElement | null, image: Blob 
     img.src = URL.createObjectURL(image)
 
     img.onload = () => {
-      canvas.width = img.width
-      canvas.height = img.height
-
-      console.log(`width: ${img.width}, height: ${img.height}`)
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height) // 나중에 해상도 사이즈 체크해서 비율로 계산 후 넣어야 함
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height) // 캔버스에 이미지 그리기
+      const fullWidth = window.innerWidth - defaultPadding * 2
+      // 이미지 길아와 브라우저 해상도 비교
+      if (fullWidth > img.width) {
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx.clearRect(0, 0, canvas.width, canvas.height) // 나중에 해상도 사이즈 체크해서 비율로 계산 후 넣어야 함
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height) // 캔버스에 이미지 그리기
+      } else {
+        canvas.width = fullWidth
+        canvas.height = fullWidth / (img.width / img.height) // 비율에 맞게 높이 계산
+        ctx.clearRect(0, 0, canvas.width, canvas.height) // 나중에 해상도 사이즈 체크해서 비율로 계산 후 넣어야 함
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height) // 캔버스에 이미지 그리기
+      }
       URL.revokeObjectURL(img.src) // Blob URL 해제
     }
     img.onerror = (e) => {

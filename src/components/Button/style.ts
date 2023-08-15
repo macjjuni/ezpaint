@@ -31,6 +31,7 @@ const ButtonStyled = styled.button<IButtun>`
   border-color: ${({ borderColor }) => borderColor || 'none'};
   background-color: ${({ bg }) => bg || 'rgba(0, 0, 0, 0.4)'};
   cursor: pointer;
+  user-select: none;
   transition: all 0.07s ease-in-out;
 
   &:hover {

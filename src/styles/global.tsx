@@ -17,6 +17,7 @@ const globalStyles = css`
   }
 
   a {
+    box-sizing: border-box;
     font-size: inherit;
     color: inherit;
     text-decoration: inherit;
@@ -30,7 +31,6 @@ const globalStyles = css`
     margin: 0;
     padding: 0;
   }
-
   body {
     margin: 0;
     display: flex;

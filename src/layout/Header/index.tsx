@@ -1,16 +1,26 @@
+import { useEffect, useRef } from 'react'
 import { AiFillGithub } from 'react-icons/ai'
 import Layout from '@/layout/layout.style'
+import Button from '@/components/Button'
 
 const title = import.meta.env.VITE_TITLE
 const gitUrl = import.meta.env.VITE_GIT_REPO
 
 const Header = () => {
+  const headerRef = useRef<HTMLHeadElement>(null)
+
+  useEffect(() => {
+    headerRef.current?.classList.add('loaded')
+  }, [])
+
   return (
-    <Layout.Header className="grid">
+    <Layout.Header ref={headerRef} className="grid">
       <h1>{title}</h1>
-      <a className="git-icon" target="_blank" rel="noreferrer" href={gitUrl}>
-        <AiFillGithub fontSize={28} />
-      </a>
+      <Button padding="4px">
+        <a className="git-icon" target="_blank" rel="noreferrer" href={gitUrl}>
+          <AiFillGithub fontSize={26} />
+        </a>
+      </Button>
     </Layout.Header>
   )
 }

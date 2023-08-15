@@ -3,21 +3,23 @@ import { css } from '@emotion/react'
 
 const headerHeight = 56
 const footerHeight = 32
-const defaultPadding = 12
+export const defaultPadding = 12
 export const mainMinHieght = `calc(100dvh - (${headerHeight}px + ${footerHeight}px + ${defaultPadding * 2}px))`
 
 const layoutStyle = {
-  header: css`
+  common: css`
     position: relative;
+    transition: opacity 0.77s ease;
+  `,
+  header: css`
     height: ${headerHeight}px;
     padding: 0 ${defaultPadding}px;
   `,
   main: css`
-    position: relative;
     min-height: ${mainMinHieght};
+    padding: ${defaultPadding}px;
   `,
   footer: css`
-    position: relative;
     height: ${footerHeight}px;
     padding: 0 ${defaultPadding}px;
   `,
@@ -29,8 +31,14 @@ const Layout = {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${layoutStyle.header}
+    opacity: 0;
+
     z-index: 9999;
+    ${layoutStyle.common}
+    ${layoutStyle.header}
+    &.loaded {
+      opacity: 1;
+    }
 
     &::after {
       content: '';
@@ -49,15 +57,23 @@ const Layout = {
   `,
   Main: styled.main`
     ${layoutStyle.main}
-    padding: ${defaultPadding}px;
+    ${layoutStyle.common}
   `,
   Footer: styled.footer`
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    opacity: 0;
+
     ${layoutStyle.footer}
+    ${layoutStyle.common}
+
     & .footer-link {
       font-style: italic;
+    }
+
+    &.loaded {
+      opacity: 1;
     }
   `,
 }
