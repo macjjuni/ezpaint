@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-type ToolType = '' | 'picker' | 'thick' | 'pen' | 'crop'
+type ToolType = null | 'picker' | 'thick' | 'pen' | 'crop'
 
 interface BearState {
   tool: ToolType
@@ -16,7 +16,7 @@ export const useBearStore = create<BearState>()(
   devtools(
     persist(
       (set) => ({
-        tool: '',
+        tool: null,
         color: 'red',
         thick: 1,
         setColor: (color) => set(() => ({ color })),

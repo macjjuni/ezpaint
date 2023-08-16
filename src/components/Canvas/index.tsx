@@ -3,6 +3,7 @@ import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, 
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
 import Toolbar from '@/components/Toolbar'
+import Crop from '@/components/Crop'
 import { useBearStore } from '@/zustand/store'
 
 const canvasHistory: string[] = []
@@ -61,6 +62,7 @@ const Canvas = () => {
 
     currentIndex.current = 0 // 순서 초기화
     canvasHistory.splice(0) // 백업 데이터 초기화
+    setTool(null) // 툴 초기화
     setImg(false)
   }, [])
 
@@ -171,8 +173,9 @@ const Canvas = () => {
 
   return (
     <>
-      <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} download={downCanvas} copy={copyCanvas} />
       <DropArea isRender={!isImg} paintImage={paintImage} />
+      <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} download={downCanvas} copy={copyCanvas} />
+      <Crop isRender={isImg && tool === 'crop'} canvas={canvasRef.current} />
       <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
     </>
   )
