@@ -107,7 +107,7 @@ export const drawCanvas = (canvas: HTMLCanvasElement, moveToXY: IXY, lineToXY: I
   ctx.stroke()
 }
 
-export const undoImageInCanvas = (canvas: HTMLCanvasElement, dataUrl: string) => {
+export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, dataUrl: string) => {
   const ctx = canvas.getContext('2d')
   if (ctx === null) {
     console.error('ctx is null')

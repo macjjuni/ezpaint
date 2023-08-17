@@ -1,7 +1,8 @@
 import { BsPencilFill, BsCrop, BsTrash } from 'react-icons/bs'
-import { FiDownload } from 'react-icons/fi'
+import { AiOutlineClear } from 'react-icons/ai'
 import { LuUndo2 } from 'react-icons/lu'
 import { BiSolidCopy } from 'react-icons/bi'
+import { TbCloudDownload } from 'react-icons/tb'
 import { useBearStore } from '@/zustand/store'
 import ToolbarStyled from './style'
 import ColorPicker from '../ColorPicker'
@@ -12,11 +13,12 @@ interface IToolbar {
   isRender: boolean
   reset: () => void
   undo: () => void
+  recovery: () => void
   download: () => void
   copy: () => void
 }
 
-const Toolbar = ({ isRender, reset, undo, download, copy }: IToolbar) => {
+const Toolbar = ({ isRender, reset, undo, recovery, download, copy }: IToolbar) => {
   const { color, thick, tool, setTool } = useBearStore((state) => state)
 
   const togglePicker = () => {
@@ -58,11 +60,14 @@ const Toolbar = ({ isRender, reset, undo, download, copy }: IToolbar) => {
         <Button onClick={undo} width={44} height={44} padding="0" borderRadius={4}>
           <LuUndo2 fontSize={24} />
         </Button>
+        <Button onClick={recovery} width={44} height={44} padding="0" borderRadius={4}>
+          <AiOutlineClear fontSize={24} />
+        </Button>
         <Button onClick={copy} width={44} height={44} padding="0" borderRadius={4}>
           <BiSolidCopy fontSize={24} />
         </Button>
         <Button onClick={download} width={44} height={44} padding="0" borderRadius={4}>
-          <FiDownload fontSize={24} />
+          <TbCloudDownload fontSize={28} />
         </Button>
 
         {/* <Button onClick={redoCanvas} width={44} height={44} padding="0" borderRadius={4}>

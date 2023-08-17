@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, undoImageInCanvas, downloadImage } from '@/utils/canvas'
+import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, dataUrlDrawInCanvas, downloadImage } from '@/utils/canvas'
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
 import Toolbar from '@/components/Toolbar'
 import Crop from '@/components/Crop'
 import { useBearStore } from '@/zustand/store'
 
-const canvasHistory: string[] = []
-
 const Canvas = () => {
   const { color, thick, tool, setTool } = useBearStore((state) => state) // 현재 색상
   const [isImg, setImg] = useState(false) // 캔버스에 이미지 표시 여부, false인 경우 <DropArea /> 표시
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const originImage = useRef('')
+  const canvasHistory = useRef<string[]>([])
   const currentIndex = useRef<number>(0) // 드로윙 위치, canvasHistory에 사용
 
   // 드로잉 변수
@@ -39,6 +39,13 @@ const Canvas = () => {
     return ctx
   }, [])
 
+  // 메타 데이터 초기화
+  const resetData = useCallback(() => {
+    originImage.current = ''
+    canvasHistory.current.splice(0)
+    currentIndex.current = 0
+  }, [])
+
   // 캔버스 복사 기능
   const copyCanvas = useCallback(() => {
     const canvas = getCanvas()
@@ -60,8 +67,7 @@ const Canvas = () => {
     canvas.width = 0
     canvas.height = 0
 
-    currentIndex.current = 0 // 순서 초기화
-    canvasHistory.splice(0) // 백업 데이터 초기화
+    resetData() // 메타 데이터 초기화
     setTool(null) // 툴 초기화
     setImg(false)
   }, [])
@@ -71,7 +77,8 @@ const Canvas = () => {
     const canvas = getCanvas()
     if (!canvas) return
     const tempImg = canvas.toDataURL('image/jpeg', 1)
-    canvasHistory.push(tempImg)
+    if (currentIndex.current === 0) originImage.current = tempImg
+    canvasHistory.current.push(tempImg)
     currentIndex.current += 1
   }, [])
 
@@ -81,9 +88,19 @@ const Canvas = () => {
     if (!canvas) return
     if (currentIndex.current === 0) return
     const undoIdx = currentIndex.current - 1
-    undoImageInCanvas(canvas, canvasHistory[undoIdx])
+    dataUrlDrawInCanvas(canvas, canvasHistory.current[undoIdx])
     currentIndex.current = undoIdx
-    canvasHistory.splice(canvasHistory.length - 1, 1) // 마지막 기록 삭제
+    canvasHistory.current.splice(canvasHistory.current.length - 1, 1) // 마지막 기록 삭제
+  }, [])
+
+  // 초기 이미지로 복구
+  const recoveryCanvas = useCallback(() => {
+    const canvas = getCanvas()
+    if (!canvas || originImage.current === '') return
+    const tempImg = canvas.toDataURL('image/jpeg', 1)
+    canvasHistory.current.push(tempImg)
+    currentIndex.current += 1
+    dataUrlDrawInCanvas(canvas, originImage.current)
   }, [])
 
   // 캔버스 이미지 다운로드
@@ -99,6 +116,7 @@ const Canvas = () => {
     const canvas = getCanvas()
     if (!canvas) return
     pasteImageInCanvas(canvas, () => {
+      resetData() // 메타 데이터 초기화
       setImg(true)
     })
     setTool('pen') // 기본 툴 설정
@@ -174,7 +192,7 @@ const Canvas = () => {
   return (
     <>
       <DropArea isRender={!isImg} paintImage={paintImage} />
-      <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} download={downCanvas} copy={copyCanvas} />
+      <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} recovery={recoveryCanvas} download={downCanvas} copy={copyCanvas} />
       <Crop isRender={isImg && tool === 'crop'} canvas={canvasRef.current} />
       <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
     </>
