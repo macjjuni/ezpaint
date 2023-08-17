@@ -193,7 +193,7 @@ const Canvas = () => {
     <>
       <DropArea isRender={!isImg} paintImage={paintImage} />
       <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} recovery={recoveryCanvas} download={downCanvas} copy={copyCanvas} />
-      <Crop isRender={isImg && tool === 'crop'} canvas={canvasRef.current} />
+      <Crop isRender={isImg && tool === 'crop'} canvas={canvasRef.current} color={color} />
       <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
     </>
   )
