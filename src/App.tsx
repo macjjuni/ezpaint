@@ -5,8 +5,10 @@ import Main from './layout/Main/Main'
 import Footer from './layout/Footer'
 import GlobalStyles from './styles/global'
 import theme from './styles/theme'
+import GoogleGA from '@/components/GoogleGA'
 
 const App = () => {
+  GoogleGA()
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
