@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { css } from '@emotion/react'
 
-const headerHeight = 56
+export const headerHeight = 56
 const footerHeight = 32
 export const defaultPadding = 12
 export const mainMinHieght = `calc(100dvh - (${headerHeight}px + ${footerHeight}px + ${defaultPadding * 2}px))`

@@ -16,7 +16,7 @@ const ToolbarStyled = {
     align-items: center;
     gap: 16px;
     opacity: 1;
-    z-index: 0;
+    z-index: 9999;
     transition: all 0.27s ease;
 
     ${({ active }) => (!active ? activeStyle : '')}

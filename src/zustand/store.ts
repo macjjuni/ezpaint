@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-type ToolType = null | 'picker' | 'thick' | 'pen' | 'crop'
+export type ToolType = null | 'picker' | 'thick' | 'pen' | 'crop'
 
 interface BearState {
   tool: ToolType
