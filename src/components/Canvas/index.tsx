@@ -3,7 +3,7 @@ import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, 
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
 import Toolbar from '@/components/Toolbar'
-import Crop2 from '@/components/Crop2'
+import Crop from '@/components/Crop'
 import { useBearStore } from '@/zustand/store'
 
 const Canvas = () => {
@@ -14,6 +14,7 @@ const Canvas = () => {
   const originImage = useRef('')
   const canvasHistory = useRef<string[]>([])
   const currentIndex = useRef<number>(0) // 드로윙 위치, canvasHistory에 사용
+  const currentImage = useRef<string>('')
 
   // 드로잉 변수
   const [isDrawing, setIsDrawing] = useState(false)
@@ -37,6 +38,21 @@ const Canvas = () => {
       return
     }
     return ctx
+  }, [])
+
+  const saveCurrentImage = () => {
+    setTimeout(() => {
+      const canvas = getCanvas()
+      if (!canvas) return
+      const tempImg = canvas.toDataURL('image/jpeg', 1)
+      currentImage.current = tempImg
+    }, 300)
+  }
+
+  const refreshCanvas = useCallback(() => {
+    const canvas = getCanvas()
+    if (!canvas) return
+    dataUrlDrawInCanvas(canvas, currentImage.current)
   }, [])
 
   // 메타 데이터 초기화
@@ -119,7 +135,7 @@ const Canvas = () => {
       resetData() // 메타 데이터 초기화
       setImg(true)
     })
-    setTool('pen') // 기본 툴 설정
+    saveCurrentImage()
   }, [])
 
   // 캔버스에 이미지 넣기
@@ -127,8 +143,8 @@ const Canvas = () => {
     const canvas = getCanvas()
     if (!canvas) return
     paintImageInCanvas(canvas, imageFile)
-    setTool('pen') // 기본 툴 설정
     setImg(true)
+    saveCurrentImage()
   }
 
   // 펜 그리기 시작
@@ -163,6 +179,7 @@ const Canvas = () => {
   // 펜 그리기 종료
   const endDrawing = () => {
     setIsDrawing(false)
+    saveCurrentImage()
   }
 
   // 캔버스 이전으로 되돌리기
@@ -183,6 +200,7 @@ const Canvas = () => {
   }, [])
 
   useEffect(() => {
+    setTool('pen')
     window.addEventListener('keydown', keyCheck)
     return () => {
       window.removeEventListener('keydown', keyCheck)
@@ -193,9 +211,8 @@ const Canvas = () => {
     <>
       <DropArea isRender={!isImg} paintImage={paintImage} />
       <Toolbar isRender={isImg} reset={resetCanvas} undo={undoCanvas} recovery={recoveryCanvas} download={downCanvas} copy={copyCanvas} />
-      <Crop2 tool={tool}>
-        <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} />
-      </Crop2>
+      <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} visibility={(tool === 'crop').toString()} />
+      <Crop currentImage={currentImage.current} tool={tool} />
     </>
   )
 }

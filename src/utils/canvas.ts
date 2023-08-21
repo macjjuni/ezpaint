@@ -2,7 +2,7 @@ import moment from 'moment'
 import { defaultPadding } from '@/layout/layout.style'
 
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
-export const drawImageInCanvas = (canvas: HTMLCanvasElement | null, image: Blob | File) => {
+export const drawImageInCanvas = async (canvas: HTMLCanvasElement | null, image: Blob | File) => {
   if (canvas === null) {
     console.error('canvas is null')
     return
