@@ -6,8 +6,10 @@ const CropStyled = {
     top: 0;
     left: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 24px;
     width: 100%;
     height: 100%;
 

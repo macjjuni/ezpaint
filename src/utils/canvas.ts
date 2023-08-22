@@ -1,17 +1,25 @@
 import moment from 'moment'
+import { type Crop as CropTypes } from 'react-image-crop'
 import { defaultPadding } from '@/layout/layout.style'
+
+export interface ICanvasData {
+  base64: string
+  width: number
+  height: number
+}
+
+interface IXY {
+  x: number
+  y: number
+}
 
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
 export const drawImageInCanvas = async (canvas: HTMLCanvasElement | null, image: Blob | File) => {
-  if (canvas === null) {
-    console.error('canvas is null')
-    return
-  }
+  if (!canvas) throw new Error('Canvas is not available.')
+
   const ctx = canvas.getContext('2d')
-  if (ctx === null) {
-    console.error('ctx is null')
-    return
-  }
+  if (!ctx) throw new Error('Canvas context is not available.')
+  ctx.imageSmoothingQuality = 'high'
 
   try {
     const img = new Image()
@@ -83,39 +91,35 @@ export const paintImageInCanvas = async (canvas: HTMLCanvasElement, ImageFile: F
   try {
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('Canvas context is not available.')
+    ctx.imageSmoothingQuality = 'high'
     drawImageInCanvas(canvas, ImageFile)
   } catch (err) {
     console.error('An error occurred while painting image:', err)
   }
 }
 
-interface IXY {
-  x: number
-  y: number
-}
-
 export const drawCanvas = (canvas: HTMLCanvasElement, moveToXY: IXY, lineToXY: IXY) => {
   const ctx = canvas.getContext('2d')
-  if (ctx === null) {
-    console.error('ctx is null')
-    return
-  }
-
+  if (!ctx) throw new Error('Canvas context is not available.')
+  ctx.imageSmoothingQuality = 'high'
   ctx.beginPath()
   ctx.moveTo(moveToXY.x, moveToXY.y)
   ctx.lineTo(lineToXY.x, lineToXY.y)
   ctx.stroke()
 }
 
-export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, dataUrl: string) => {
+export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, canvasData: ICanvasData) => {
   const ctx = canvas.getContext('2d')
-  if (ctx === null) {
-    console.error('ctx is null')
-    return
-  }
+  if (!ctx) throw new Error('Canvas context is not available.')
+  ctx.imageSmoothingQuality = 'high'
 
   const img = new Image()
-  img.src = dataUrl
+  // width, height이 있는 경우는 Crop 후 이미지 그릴 때
+  if (canvasData.width && canvasData.height) {
+    canvas.width = canvasData.width
+    canvas.height = canvasData.height
+  }
+  img.src = canvasData.base64
   img.onload = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
@@ -141,4 +145,26 @@ export const downloadImage = async (canvas: HTMLCanvasElement) => {
     'image/png',
     1
   )
+}
+
+// 자른 이미지 파라미터로 받아서 base64 형식으로 내보내기
+export const cropImage = (image: HTMLImageElement, crop: CropTypes): ICanvasData | undefined => {
+  const canvas = document.createElement('canvas')
+  const scaleX = image.naturalWidth / image.width
+  const scaleY = image.naturalHeight / image.height
+  canvas.width = crop.width
+  canvas.height = crop.height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Canvas context is not available.')
+
+  const pixelRatio = window.devicePixelRatio
+  canvas.width = crop.width * pixelRatio
+  canvas.height = crop.height * pixelRatio
+  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
+  ctx.imageSmoothingQuality = 'high'
+
+  ctx.drawImage(image, crop.x * scaleX, crop.y * scaleY, crop.width * scaleX, crop.height * scaleY, 0, 0, crop.width, crop.height)
+
+  const base64 = canvas.toDataURL('image/jpeg') // Converting to base64
+  return { base64, width: crop.width, height: crop.height }
 }

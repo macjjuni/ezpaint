@@ -3,7 +3,7 @@ import { AiFillGithub } from 'react-icons/ai'
 import Layout from '@/layout/layout.style'
 import Button from '@/components/Button'
 
-const title = import.meta.env.VITE_TITLE
+const title = import.meta.env.VITE_LOGO
 const gitUrl = import.meta.env.VITE_GIT_REPO
 
 const Header = () => {

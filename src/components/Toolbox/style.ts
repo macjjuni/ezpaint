@@ -2,24 +2,25 @@ import styled from '@emotion/styled'
 import { css } from '@emotion/react'
 
 const activeStyle = css`
-  top: -50px;
-  opacity: 0;
+  top: 12px;
+  opacity: 1;
+  z-index: 9999;
 `
 
-const ToolbarStyled = {
+const ToolboxStyled = {
   Wrap: styled.div<{ active: boolean }>`
     position: absolute;
-    top: 12px;
+    top: -64px;
     right: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 16px;
-    opacity: 1;
-    z-index: 9999;
-    transition: all 0.27s ease;
+    opacity: 0;
+    z-index: -9999;
+    transition: all 0.44s ease;
 
-    ${({ active }) => (!active ? activeStyle : '')}
+    ${({ active }) => (active ? activeStyle : null)}
   `,
   Left: styled.div`
     display: flex;
@@ -49,9 +50,9 @@ const ToolbarStyled = {
     width: 70%;
     background-color: ${({ color }) => color};
     height: ${({ thick }) => thick}px;
-    border-radius: 3px;
+    border-radius: 2px;
     border: 2px solid #fff;
   `,
 }
 
-export default ToolbarStyled
+export default ToolboxStyled
