@@ -19,9 +19,9 @@ const DropAreaStyled = {
     gap: 48px;
     width: 80%;
     height: calc(100dvh * 0.4);
-    border: 2px dashed #545454;
-    border-radius: 16px;
-    background-color: rgba(0, 0, 0, 0.1);
+    outline: 3px dashed #545454;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.2);
     font-size: 32px;
     user-select: none;
     transition: all 0.16s ease-in-out, all 0.16s ease-in-out;
