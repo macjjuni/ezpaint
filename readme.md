@@ -1,10 +1,12 @@
 # EZPaint - [📎 Link](https://ez-paint.web.app/)
 
-<div style="display: flex; gap: 12px;">
-<img src="https://github.com/macjjuni/ezpaint/assets/38034518/1b46352b-86de-4cb6-a96c-5fdb7e978665" alt="ez-paint screen" width="50%" />
+<div style="display: flex; justify-content: center; gap: 12px;">
+<img src="https://github.com/macjjuni/ezpaint/assets/38034518/3379b092-756c-48ab-b05c-8eb677a40cc2" alt="ez-paint screen" width="49%" />
 
-<img src="https://github.com/macjjuni/ezpaint/assets/38034518/54ad12b6-1142-4691-ab1d-bfc8f0a85277" alt="ez-paint play screnn" width="50%" />
+<img src="https://github.com/macjjuni/ezpaint/assets/38034518/881b958c-2838-4c85-9896-505a76354ff6" alt="ez-paint play screnn" width="49%" />
+
 </div>
+
 
 <br>
 <br>
