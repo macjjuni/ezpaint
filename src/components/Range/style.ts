@@ -4,7 +4,7 @@ const RangeStyled = {
   Wrap: styled.div<{ color: string }>`
     width: 200px;
     margin: 0;
-    padding: 16px 12px;
+    padding: 12px 12px;
     border-radius: 4px;
     background-color: rgba(0, 0, 0, 0.4) !important;
 

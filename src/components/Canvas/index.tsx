@@ -8,7 +8,7 @@ import { useBearStore } from '@/zustand/store'
 import { type ICanvasData } from '@/utils/canvas'
 
 const Canvas = () => {
-  const { color, thick, tool, setTool } = useBearStore((state) => state) // 현재 색상
+  const { color, thick, tool, setTool, setInCanvas } = useBearStore((state) => state) // 현재 색상
   const [isImg, setImg] = useState(false) // 캔버스에 이미지 표시 여부, false인 경우 <DropArea /> 표시
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -74,6 +74,7 @@ const Canvas = () => {
 
     resetData() // 메타 데이터 초기화
     setTool('pen') // 툴 초기화
+    setInCanvas(false)
     setImg(false)
   }, [])
 
@@ -178,8 +179,13 @@ const Canvas = () => {
   // 펜 그리기 종료
   const endDrawing = () => {
     setIsDrawing(false)
+    setInCanvas(false)
     saveCurrentImage()
   }
+
+  const onMouseEnter = useCallback(() => {
+    setInCanvas(true)
+  }, [])
 
   // Crop된 이미지 적용
   const cropConfig = useCallback((cropData: ICanvasData) => {
@@ -201,6 +207,7 @@ const Canvas = () => {
 
   useEffect(() => {
     setTool('pen')
+    setInCanvas(false)
     window.addEventListener('keydown', keyCheck)
     return () => {
       window.removeEventListener('keydown', keyCheck)
@@ -211,7 +218,17 @@ const Canvas = () => {
     <>
       <DropArea isRender={!isImg} paintImage={paintImage} />
       <Toolbox isRender={isImg} reset={resetCanvas} undo={undoCanvas} recovery={recoveryCanvas} download={downCanvas} copy={copyCanvas} />
-      <CanvasStyled ref={canvasRef} width="0" height="0" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseOut={endDrawing} isVis={tool === 'crop' ? 0 : 1} />
+      <CanvasStyled
+        ref={canvasRef}
+        width="0"
+        height="0"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={endDrawing}
+        onMouseOut={endDrawing}
+        onMouseEnter={onMouseEnter}
+        isVis={tool === 'crop' ? 0 : 1}
+      />
       <Crop currentImage={currentImage.current} tool={tool} cropConfig={cropConfig} />
     </>
   )

@@ -16,6 +16,16 @@ const ColorPicker = ({ renderToggle }: IColorPicker) => {
     if (!isContain) renderToggle()
   }
 
+  const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    const isContain = target.classList.contains('react-colorful__saturation-pointer')
+    if (isContain) {
+      setTimeout(() => {
+        renderToggle()
+      }, 150)
+    }
+  }
+
   useEffect(() => {
     window.addEventListener('click', clickCheck)
     return () => {
@@ -24,7 +34,7 @@ const ColorPicker = ({ renderToggle }: IColorPicker) => {
   }, [])
 
   return (
-    <ColorPickerStyled className="colorful">
+    <ColorPickerStyled className="colorful" onMouseUp={onMouseUp}>
       <HexColorPicker color={color} onChange={setColor} />
     </ColorPickerStyled>
   )

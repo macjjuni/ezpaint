@@ -32,6 +32,7 @@ const Layout = {
     justify-content: space-between;
     align-items: center;
     opacity: 0;
+    user-select: none;
 
     z-index: 9999;
     ${layoutStyle.common}

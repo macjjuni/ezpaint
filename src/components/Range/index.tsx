@@ -4,6 +4,8 @@ import { useBearStore } from '@/zustand/store'
 import RangeStyled from './style'
 import 'react-rangeslider/lib/index.css'
 
+const checkList = ['rangeslider__handle', 'rangeslider']
+
 const Range = ({ renderToggle }: { renderToggle: () => void }) => {
   const { thick, setThick, color } = useBearStore((state) => state)
 
@@ -19,6 +21,16 @@ const Range = ({ renderToggle }: { renderToggle: () => void }) => {
     if (!isContain) renderToggle()
   }
 
+  const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    const isContain = checkList.some((cls) => target.classList.contains(cls))
+    if (isContain) {
+      setTimeout(() => {
+        renderToggle()
+      }, 150)
+    }
+  }
+
   useEffect(() => {
     window.addEventListener('click', clickCheck)
     return () => {
@@ -27,7 +39,7 @@ const Range = ({ renderToggle }: { renderToggle: () => void }) => {
   }, [])
   return (
     <>
-      <RangeStyled.Wrap className="rangeslider" color={color}>
+      <RangeStyled.Wrap className="rangeslider" color={color} onMouseUp={onMouseUp}>
         <Slider min={1} max={25} step={1} value={thick} onChange={changeRagne} tooltip={false} />
       </RangeStyled.Wrap>
     </>
