@@ -14,9 +14,7 @@ interface IXY {
 }
 
 // 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
-export const drawImageInCanvas = async (canvas: HTMLCanvasElement | null, image: Blob | File) => {
-  if (!canvas) throw new Error('Canvas is not available.')
-
+export const drawImageInCanvas = async (canvas: HTMLCanvasElement, image: Blob | File) => {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas context is not available.')
   ctx.imageSmoothingQuality = 'high'
@@ -86,26 +84,20 @@ export const pasteImageInCanvas = async (canvas: HTMLCanvasElement, render: () =
   }
 }
 
-// 이미지 파일을 받아와 캔버스에 그리는 함수 (다른 컴포넌트에서 사용)
-export const paintImageInCanvas = async (canvas: HTMLCanvasElement, ImageFile: File) => {
-  try {
-    const ctx = canvas.getContext('2d')
-    if (!ctx) throw new Error('Canvas context is not available.')
-    ctx.imageSmoothingQuality = 'high'
-    drawImageInCanvas(canvas, ImageFile)
-  } catch (err) {
-    console.error('An error occurred while painting image:', err)
-  }
-}
-
-export const drawCanvas = (canvas: HTMLCanvasElement, moveToXY: IXY, lineToXY: IXY) => {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas context is not available.')
+export const drawCanvas = (ctx: CanvasRenderingContext2D, moveToXY: IXY, lineToXY: IXY) => {
   ctx.imageSmoothingQuality = 'high'
   ctx.beginPath()
   ctx.moveTo(moveToXY.x, moveToXY.y)
   ctx.lineTo(lineToXY.x, lineToXY.y)
   ctx.stroke()
+}
+
+export const drawPoint = (ctx: CanvasRenderingContext2D, moveToXY: IXY, color: string, thick: number) => {
+  ctx.beginPath()
+  ctx.arc(moveToXY.x, moveToXY.y, thick / 2, 0, Math.PI * 2, false)
+  ctx.fillStyle = color
+  ctx.fill()
+  ctx.closePath()
 }
 
 export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, canvasData: ICanvasData) => {

@@ -11,6 +11,7 @@ const CanvasStyled = styled.canvas<ICanvasStyled>`
   visibility: ${({ isVis }) => (isVis ? 'visible' : 'hidden')};
   transition: opacity 0.07s ease-in-out;
   user-select: none;
+  cursor: none;
 
   &.copy-done {
     opacity: 0;

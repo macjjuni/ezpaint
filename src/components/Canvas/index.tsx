@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { pasteImageInCanvas, copyImageInCanvas, paintImageInCanvas, drawCanvas, dataUrlDrawInCanvas, downloadImage } from '@/utils/canvas'
+import { pasteImageInCanvas, copyImageInCanvas, drawCanvas, drawPoint, dataUrlDrawInCanvas, downloadImage, drawImageInCanvas } from '@/utils/canvas'
 import CanvasStyled from './style'
 import DropArea from '@/components/DropArea'
 import Toolbox from '@/components/Toolbox'
@@ -141,9 +141,9 @@ const Canvas = () => {
   }, [])
 
   // 캔버스에 이미지 넣기
-  const paintImage = (imageFile: File) => {
+  const paintImage = async (imageFile: File) => {
     const canvas = getCanvas()
-    paintImageInCanvas(canvas, imageFile)
+    await drawImageInCanvas(canvas, imageFile)
     setImg(true)
     saveCurrentImage()
   }
@@ -151,15 +151,19 @@ const Canvas = () => {
   // 펜 그리기 시작
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (tool !== 'pen') return
+
     const ctx = getCtx()
+    const pos = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
 
     recoverSaveCanvas()
-    setIsDrawing(true)
-    setLastX(e.nativeEvent.offsetX)
-    setLastY(e.nativeEvent.offsetY)
+    setIsDrawing(true) // 드로잉 시작
 
-    ctx.lineCap = 'round'
-    ctx.lineWidth = thick
+    setLastX(pos.x)
+    setLastY(pos.y)
+
+    drawPoint(ctx, pos, color, thick)
+    ctx.lineCap = 'round' // 스타일
+    ctx.lineWidth = thick // 두께 적용
     ctx.strokeStyle = color // 색상 적용
   }
 
@@ -167,10 +171,10 @@ const Canvas = () => {
   const draw = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (!isDrawing) return
 
-    const canvas = getCanvas()
+    const ctx = getCtx()
     const moveToXY = { x: lastX, y: lastY }
     const lineToXY = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
-    drawCanvas(canvas, moveToXY, lineToXY)
+    drawCanvas(ctx, moveToXY, lineToXY)
 
     setLastX(e.nativeEvent.offsetX)
     setLastY(e.nativeEvent.offsetY)
@@ -179,9 +183,12 @@ const Canvas = () => {
   // 펜 그리기 종료
   const endDrawing = () => {
     setIsDrawing(false)
-    setInCanvas(false)
     saveCurrentImage()
   }
+
+  const endDrawCursor = useCallback(() => {
+    setInCanvas(false)
+  }, [])
 
   const onMouseEnter = useCallback(() => {
     setInCanvas(true)
@@ -225,7 +232,7 @@ const Canvas = () => {
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={endDrawing}
-        onMouseOut={endDrawing}
+        onMouseOut={endDrawCursor}
         onMouseEnter={onMouseEnter}
         isVis={tool === 'crop' ? 0 : 1}
       />

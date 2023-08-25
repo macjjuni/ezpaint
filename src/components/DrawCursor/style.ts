@@ -13,7 +13,7 @@ const DrawCursorStyled = styled.div<IDrawCursor>`
   position: absolute;
   top: ${({ y }) => y}px;
   left: ${({ x }) => x}px;
-  transform: translate(-${({ thick }) => thick / 2}px, -${({ thick }) => thick / 2}px);
+  /* transform: translate(-${({ thick }) => thick / 2}px, -${({ thick }) => thick / 2}px); */
   width: ${({ thick }) => thick}px;
   height: ${({ thick }) => thick}px;
   background-color: ${({ color }) => color};
