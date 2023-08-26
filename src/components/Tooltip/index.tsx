@@ -7,7 +7,7 @@ interface ITooltip {
 
 const Tooltip = ({ text, show }: ITooltip) => {
   return (
-    <TooltipStyled show={show} text={text}>
+    <TooltipStyled show={show} text={text} className={show ? 'active' : 'noActive'}>
       {text}
     </TooltipStyled>
   )
