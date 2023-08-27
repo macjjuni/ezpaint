@@ -17,7 +17,6 @@ interface IXY {
 export const drawImageInCanvas = async (canvas: HTMLCanvasElement, image: Blob | File) => {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas context is not available.')
-  ctx.imageSmoothingQuality = 'high'
 
   try {
     const img = new Image()
@@ -93,11 +92,11 @@ export const drawCanvas = (ctx: CanvasRenderingContext2D, moveToXY: IXY, lineToX
 }
 
 export const drawPoint = (ctx: CanvasRenderingContext2D, moveToXY: IXY, color: string, thick: number) => {
-  ctx.beginPath()
-  ctx.arc(moveToXY.x, moveToXY.y, thick / 2, 0, Math.PI * 2, false)
-  ctx.fillStyle = color
-  ctx.fill()
-  ctx.closePath()
+  ctx.beginPath() // 새로운 path 생성
+  ctx.arc(moveToXY.x, moveToXY.y, thick / 2, 0, Math.PI * 2, false) // 원형 그리기
+  ctx.fillStyle = color // 색상 설정
+  ctx.fill() // path 내부를 채움
+  ctx.closePath() // path 닫기
 }
 
 export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, canvasData: ICanvasData) => {
