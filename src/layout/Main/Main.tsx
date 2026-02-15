@@ -1,7 +1,9 @@
-import Layout from '@/layout/layout.style'
+import { Outlet } from 'react-router-dom'
 
-const Main = ({ children }: { children: React.ReactNode }) => {
-  return <Layout.Main>{children}</Layout.Main>
+export default function Main() {
+  return (
+    <main className="relative flex-1 p-2 pb-0">
+      <Outlet />
+    </main>
+  )
 }
-
-export default Main

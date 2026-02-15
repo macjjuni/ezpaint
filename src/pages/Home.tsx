@@ -1,20 +1,11 @@
-import styled from '@emotion/styled'
-import Canvas from '@/components/Canvas'
-import { mainMinHieght } from '@/layout/layout.style'
-
-const MainPaag = styled.section`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: ${mainMinHieght};
-`
+import { Canvas } from '@/components'
 
 const Home = () => {
+
   return (
-    <MainPaag>
+    <section className="flex justify-center items-center w-full h-full">
       <Canvas />
-    </MainPaag>
+    </section>
   )
 }
 

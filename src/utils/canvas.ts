@@ -1,57 +1,71 @@
-import moment from 'moment'
 import { type Crop as CropTypes } from 'react-image-crop'
-import { defaultPadding } from '@/layout/layout.style'
+import { HORIZONTAL_PADDING, IMAGE_QUALITY, IMAGE_FORMAT_JPEG, IMAGE_FORMAT_PNG } from '@/constants'
+import { type ICanvasData, type IXY } from '@/types'
 
-export interface ICanvasData {
-  base64: string
-  width: number
-  height: number
-}
+export type { ICanvasData } from '@/types'
 
-interface IXY {
-  x: number
-  y: number
-}
+/**
+ * 캔버스에 이미지를 그리고 뷰포트에 맞게 자동 리사이징
+ *
+ * @param canvas - 대상 캔버스 엘리먼트
+ * @param image - 그릴 이미지 파일 또는 Blob
+ * @returns 이미지가 그려지면 resolve되는 Promise
+ * @throws {Error} 캔버스 컨텍스트를 가져올 수 없는 경우
+ */
+export const drawImageInCanvas = (canvas: HTMLCanvasElement, image: Blob | File): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      reject(new Error('Canvas context is not available.'))
+      return
+    }
 
-// 캔버스에 이미지 그리기 (이미지 사이즈 리팩토링을 위해 로직 분리)
-export const drawImageInCanvas = async (canvas: HTMLCanvasElement, image: Blob | File) => {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas context is not available.')
-
-  try {
     const img = new Image()
     img.src = URL.createObjectURL(image)
 
     img.onload = () => {
-      const fullWidth = window.innerWidth - defaultPadding * 2
-      // 이미지 길아와 브라우저 해상도 비교
-      if (fullWidth > img.width) {
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx.clearRect(0, 0, canvas.width, canvas.height) // 나중에 해상도 사이즈 체크해서 비율로 계산 후 넣어야 함
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height) // 캔버스에 이미지 그리기
-      } else {
-        canvas.width = fullWidth
-        canvas.height = fullWidth / (img.width / img.height) // 비율에 맞게 높이 계산
-        ctx.clearRect(0, 0, canvas.width, canvas.height) // 나중에 해상도 사이즈 체크해서 비율로 계산 후 넣어야 함
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height) // 캔버스에 이미지 그리기
+      try {
+        const maxWidth = window.innerWidth - HORIZONTAL_PADDING
+
+        let finalWidth = img.width
+        let finalHeight = img.height
+
+        // 이미지 가로가 브라우저보다 큰 경우만 축소
+        if (img.width > maxWidth) {
+          finalWidth = maxWidth
+          finalHeight = (maxWidth / img.width) * img.height
+        }
+
+        canvas.width = finalWidth
+        canvas.height = finalHeight
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+        URL.revokeObjectURL(img.src) // Blob URL 해제
+        resolve()
+      } catch (err) {
+        URL.revokeObjectURL(img.src)
+        reject(err)
       }
-      URL.revokeObjectURL(img.src) // Blob URL 해제
     }
-    img.onerror = (e) => {
-      console.error('이미지 로드 오류', e)
+
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src) // 메모리 누수 방지
+      reject(new Error('이미지 로드 오류'))
     }
-  } catch (err) {
-    console.error('An error occurred while painting image:', err)
-  }
+  })
 }
 
-// 이미지 복사 로직
+/**
+ * 캔버스 이미지를 클립보드에 PNG 형식으로 복사
+ *
+ * @param canvas - 복사할 캔버스 엘리먼트
+ */
 export const copyImageInCanvas = async (canvas: HTMLCanvasElement) => {
   if (canvas.width === 0) return
 
   const blob: Blob | null = await new Promise((resolve) => {
-    canvas.toBlob(resolve, 'image/png', 1)
+    canvas.toBlob(resolve, IMAGE_FORMAT_PNG, IMAGE_QUALITY)
   })
 
   if (!blob) {
@@ -60,29 +74,45 @@ export const copyImageInCanvas = async (canvas: HTMLCanvasElement) => {
   }
 
   try {
-    const data = [new ClipboardItem({ 'image/png': blob })]
+    const data = [new ClipboardItem({ [IMAGE_FORMAT_PNG]: blob })]
     await navigator.clipboard.write(data)
   } catch (err) {
     console.error('Error copying image to clipboard:', err)
   }
 }
 
-// 클립보드에 있는 이미지 캔버스에 그리는 함수
+/**
+ * 클립보드에 있는 이미지를 캔버스에 붙여넣기
+ *
+ * @param canvas - 대상 캔버스 엘리먼트
+ * @param render - 붙여넣기 후 호출할 렌더링 콜백 함수
+ */
 export const pasteImageInCanvas = async (canvas: HTMLCanvasElement, render: () => void) => {
   try {
     const clipboardItems = await navigator.clipboard.read() // 클립보드 읽어오기(Only HTTPS)
     const imageItem = clipboardItems.find((item) => item.types.some((type) => type.startsWith('image/'))) // 이미지 형식 찾기
 
     if (imageItem) {
-      const blob = await imageItem.getType('image/png')
-      drawImageInCanvas(canvas, blob)
-      render()
+      // 클립보드에 있는 실제 이미지 타입 찾기
+      const imageType = imageItem.types.find((type) => type.startsWith('image/'))
+      if (imageType) {
+        const blob = await imageItem.getType(imageType)
+        await drawImageInCanvas(canvas, blob)
+        render()
+      }
     }
   } catch (err) {
     console.error('Error pasting image:', err)
   }
 }
 
+/**
+ * 두 점 사이에 선을 그림
+ *
+ * @param ctx - 캔버스 렌더링 컨텍스트
+ * @param moveToXY - 시작 좌표
+ * @param lineToXY - 끝 좌표
+ */
 export const drawCanvas = (ctx: CanvasRenderingContext2D, moveToXY: IXY, lineToXY: IXY) => {
   ctx.imageSmoothingQuality = 'high'
   ctx.beginPath()
@@ -91,6 +121,14 @@ export const drawCanvas = (ctx: CanvasRenderingContext2D, moveToXY: IXY, lineToX
   ctx.stroke()
 }
 
+/**
+ * 펜 도구로 단일 점(원형)을 그림
+ *
+ * @param ctx - 캔버스 렌더링 컨텍스트
+ * @param moveToXY - 점을 그릴 좌표
+ * @param color - 점의 색상
+ * @param thick - 점의 두께(지름)
+ */
 export const drawPoint = (ctx: CanvasRenderingContext2D, moveToXY: IXY, color: string, thick: number) => {
   ctx.beginPath() // 새로운 path 생성
   ctx.arc(moveToXY.x, moveToXY.y, thick / 2, 0, Math.PI * 2, false) // 원형 그리기
@@ -99,24 +137,50 @@ export const drawPoint = (ctx: CanvasRenderingContext2D, moveToXY: IXY, color: s
   ctx.closePath() // path 닫기
 }
 
-export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, canvasData: ICanvasData) => {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas context is not available.')
-  ctx.imageSmoothingQuality = 'high'
+/**
+ * Base64 인코딩된 이미지 데이터를 캔버스에 렌더링
+ *
+ * @param canvas - 대상 캔버스 엘리먼트
+ * @param canvasData - Base64 이미지 데이터 및 크기 정보
+ * @returns 렌더링이 완료되면 resolve되는 Promise
+ * @throws {Error} 캔버스 컨텍스트를 가져올 수 없거나 이미지 로드에 실패한 경우
+ */
+export const dataUrlDrawInCanvas = (canvas: HTMLCanvasElement, canvasData: ICanvasData): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      reject(new Error('Canvas context is not available.'))
+      return
+    }
+    ctx.imageSmoothingQuality = 'high'
 
-  const img = new Image()
-  // width, height이 있는 경우는 Crop 후 이미지 그릴 때
-  if (canvasData.width && canvasData.height) {
-    canvas.width = canvasData.width
-    canvas.height = canvasData.height
-  }
-  img.src = canvasData.base64
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-  }
+    const img = new Image()
+    // width, height이 있는 경우는 Crop 후 이미지 그릴 때
+    if (canvasData.width && canvasData.height) {
+      canvas.width = canvasData.width
+      canvas.height = canvasData.height
+    }
+    img.src = canvasData.base64
+    img.onload = () => {
+      try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    }
+    img.onerror = () => {
+      reject(new Error('이미지 로드 실패'))
+    }
+  })
 }
 
+/**
+ * 캔버스 이미지를 타임스탬프 파일명으로 PNG 다운로드
+ *
+ * @param canvas - 다운로드할 캔버스 엘리먼트
+ */
 export const downloadImage = async (canvas: HTMLCanvasElement) => {
   const aTag = document.createElement('a')
 
@@ -129,22 +193,29 @@ export const downloadImage = async (canvas: HTMLCanvasElement) => {
       const url = URL.createObjectURL(blob)
       aTag.href = url
       aTag.target = '_blank'
-      aTag.download = `${moment().format('yyyy-MM-DD_HH:mm:ss')}.png`
+      const now = new Date()
+      const timestamp = now.toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-')
+      aTag.download = `${timestamp}.png`
       aTag.click()
       URL.revokeObjectURL(url)
     },
-    'image/png',
-    1
+    IMAGE_FORMAT_PNG,
+    IMAGE_QUALITY
   )
 }
 
-// 자른 이미지 파라미터로 받아서 base64 형식으로 내보내기
-export const cropImage = (image: HTMLImageElement, crop: CropTypes): ICanvasData | undefined => {
+/**
+ * 이미지의 지정된 영역을 자르고 Base64 형식으로 변환
+ *
+ * @param image - 원본 이미지 엘리먼트
+ * @param crop - 자를 영역의 좌표 및 크기 정보
+ * @returns 잘린 이미지의 Base64 데이터 및 크기
+ * @throws {Error} 캔버스 컨텍스트를 가져올 수 없는 경우
+ */
+export const cropImage = (image: HTMLImageElement, crop: CropTypes): ICanvasData => {
   const canvas = document.createElement('canvas')
   const scaleX = image.naturalWidth / image.width
   const scaleY = image.naturalHeight / image.height
-  canvas.width = crop.width
-  canvas.height = crop.height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas context is not available.')
 
@@ -156,6 +227,6 @@ export const cropImage = (image: HTMLImageElement, crop: CropTypes): ICanvasData
 
   ctx.drawImage(image, crop.x * scaleX, crop.y * scaleY, crop.width * scaleX, crop.height * scaleY, 0, 0, crop.width, crop.height)
 
-  const base64 = canvas.toDataURL('image/jpeg') // Converting to base64
+  const base64 = canvas.toDataURL(IMAGE_FORMAT_JPEG, IMAGE_QUALITY) // Converting to base64
   return { base64, width: crop.width, height: crop.height }
 }

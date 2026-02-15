@@ -17,16 +17,7 @@
     "jsx": "react-jsx",
     "types": ["node"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/api/*": ["./src/api/*"],
-      "@components/*": ["./src/components/*"],
-      "@hoc/*": ["./src/hoc/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@layout/*": ["./src/layout/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@router/*": ["./src/router/*"],
-      "@styles/*": ["./src/styles/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
