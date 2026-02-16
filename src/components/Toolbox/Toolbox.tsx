@@ -111,10 +111,10 @@ const Toolbox = ({ isRender, reset, undo, recovery, download, copy }: IToolbox) 
 
         {/* Edit Actions Group */}
         <div className="flex items-center gap-1 px-1">
-          <ButtonWithTooltip onClick={undo} tooltipText="되돌리기" variant="ghost" size="icon" className="h-9 w-9">
+          <ButtonWithTooltip onClick={undo} tooltipText="되돌리기(Ctrl+Z)" variant="ghost" size="icon" className="h-9 w-9">
             <LuUndo2 fontSize={18} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip onClick={recovery} tooltipText="초기화" variant="ghost" size="icon" className="h-9 w-9">
+          <ButtonWithTooltip onClick={recovery} tooltipText="초기화(Ctrl+R)" variant="ghost" size="icon" className="h-9 w-9">
             <MdOutlineCleaningServices fontSize={18} />
           </ButtonWithTooltip>
         </div>
@@ -124,10 +124,10 @@ const Toolbox = ({ isRender, reset, undo, recovery, download, copy }: IToolbox) 
 
         {/* Export Actions Group */}
         <div className="flex items-center gap-1 px-1">
-          <ButtonWithTooltip onClick={copy} tooltipText="클립보드 복사" variant="ghost" size="icon" className="h-9 w-9">
+          <ButtonWithTooltip onClick={copy} tooltipText="클립보드 복사(Ctrl+C)" variant="ghost" size="icon" className="h-9 w-9">
             <BiSolidCopy fontSize={18} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip onClick={download} tooltipText="다운로드" variant="ghost" size="icon" className="h-9 w-9">
+          <ButtonWithTooltip onClick={download} tooltipText="다운로드(Ctrl+S)" variant="ghost" size="icon" className="h-9 w-9">
             <TbCloudDownload fontSize={20} />
           </ButtonWithTooltip>
         </div>
