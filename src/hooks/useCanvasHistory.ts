@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useCallback } from 'react'
 import { type ICanvasData } from '@/utils/canvas'
 import { dataUrlDrawInCanvas } from '@/utils/canvas'
 import { type ToolType } from '@/store/store'
@@ -27,7 +27,7 @@ export const useCanvasHistory = ({
   /**
    * 현재 캔버스 상태를 이미지로 저장
    */
-  const saveCurrentImage = () => {
+  const saveCurrentImage = useCallback(() => {
     requestAnimationFrame(() => {
       const canvas = canvasRef.current
       if (!canvas) return
@@ -36,21 +36,21 @@ export const useCanvasHistory = ({
 
       currentImage.current = canvas.toDataURL('image/jpeg', 1)
     })
-  }
+  }, [])
 
   /**
    * 메타 데이터 초기화
    */
-  const resetData = () => {
+  const resetData = useCallback(() => {
     originImage.current = null
     canvasHistory.current.splice(0)
     currentIndex.current = 0
-  }
+  }, [])
 
   /**
    * 현재 캔버스를 히스토리에 저장하고 IndexedDB에 백업
    */
-  const recoverSaveCanvas = () => {
+  const recoverSaveCanvas = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -66,12 +66,12 @@ export const useCanvasHistory = ({
 
     // IndexedDB에 저장
     void saveToIndexedDB()
-  }
+  }, [saveToIndexedDB])
 
   /**
    * 캔버스를 이전 상태로 되돌리기 (Undo)
    */
-  const undoCanvas = async () => {
+  const undoCanvas = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -95,12 +95,12 @@ export const useCanvasHistory = ({
 
     // 이미지 그려진 후 IndexedDB에 저장
     await saveToIndexedDB()
-  }
+  }, [tool, setTool, saveToIndexedDB])
 
   /**
    * 원본 이미지로 복구
    */
-  const recoveryCanvas = async () => {
+  const recoveryCanvas = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
     if (originImage.current === null) return
@@ -117,7 +117,7 @@ export const useCanvasHistory = ({
 
     await dataUrlDrawInCanvas(canvas, originImage.current)
     await saveToIndexedDB()
-  }
+  }, [tool, setTool, saveToIndexedDB])
 
   return {
     canvasHistory,

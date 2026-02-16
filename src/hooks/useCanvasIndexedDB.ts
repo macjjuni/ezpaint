@@ -1,4 +1,4 @@
-import { MutableRefObject } from 'react'
+import { MutableRefObject, useCallback } from 'react'
 import { set, get, del } from 'idb-keyval'
 import { IDB_KEYS } from '@/constants'
 import { type ICanvasData } from '@/utils/canvas'
@@ -27,7 +27,7 @@ export const useCanvasIndexedDB = ({
   /**
    * 캔버스와 메타데이터를 IndexedDB에 저장
    */
-  const saveToIndexedDB = async () => {
+  const saveToIndexedDB = useCallback(async () => {
     try {
       const canvas = canvasRef.current
       if (!canvas) throw new Error('Canvas is not available.')
@@ -53,14 +53,31 @@ export const useCanvasIndexedDB = ({
     } catch (err) {
       console.error('IndexedDB 저장 실패:', err)
     }
-  }
+  }, [])
+
+  /**
+   * IndexedDB의 모든 캔버스 데이터 삭제
+   */
+  const clearIndexedDB = useCallback(async () => {
+    try {
+      await Promise.all([
+        del(IDB_KEYS.CURRENT_CANVAS),
+        del(IDB_KEYS.CANVAS_HISTORY),
+        del(IDB_KEYS.CANVAS_INDEX),
+        del(IDB_KEYS.ORIGIN_IMAGE),
+      ])
+    } catch (err) {
+      console.error('IndexedDB 삭제 실패:', err)
+    }
+  }, [])
+
 
   /**
    * IndexedDB에서 캔버스와 메타데이터 복원
    *
    * @returns 복원 성공 여부
    */
-  const loadFromIndexedDB = async (): Promise<boolean> => {
+  const loadFromIndexedDB = useCallback(async (): Promise<boolean> => {
     try {
       const blob = await get<Blob>(IDB_KEYS.CURRENT_CANVAS)
 
@@ -95,23 +112,7 @@ export const useCanvasIndexedDB = ({
       await clearIndexedDB()
       return false
     }
-  }
-
-  /**
-   * IndexedDB의 모든 캔버스 데이터 삭제
-   */
-  const clearIndexedDB = async () => {
-    try {
-      await Promise.all([
-        del(IDB_KEYS.CURRENT_CANVAS),
-        del(IDB_KEYS.CANVAS_HISTORY),
-        del(IDB_KEYS.CANVAS_INDEX),
-        del(IDB_KEYS.ORIGIN_IMAGE),
-      ])
-    } catch (err) {
-      console.error('IndexedDB 삭제 실패:', err)
-    }
-  }
+  }, [clearIndexedDB, setImg, saveCurrentImage])
 
   return {
     saveToIndexedDB,

@@ -10,13 +10,14 @@ const DrawCursor = () => {
 
   const mouseMove = (e: MouseEvent) => {
     const { clientX, clientY } = e
-    setPos({ x: clientX - 5, y: clientY - 5 })
+    // 커서를 중앙 정렬: 두께의 절반만큼 오프셋
+    setPos({ x: clientX - thick / 2, y: clientY - thick / 2 })
   }
 
   useEffect(() => {
     window.addEventListener('mousemove', mouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', mouseMove)
-  }, [])
+  }, [thick])
 
   const isVisible = inCanvas && tool === 'pen'
 

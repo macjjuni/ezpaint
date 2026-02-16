@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { kToast, KSpinner } from 'kku-ui'
 import { DropArea, Toolbox, Crop } from '@/components'
-import { useColor, useThick, useTool, useSetTool, useSetInCanvas } from '@/store/store'
+import { useColor, useThick, useTool, useSetTool, useSetInCanvas, useSetThick } from '@/store/store'
 import {
   useCanvasIndexedDB,
   useCanvasHistory,
@@ -15,6 +15,7 @@ const Canvas = () => {
   const thick = useThick()
   const tool = useTool()
   const setTool = useSetTool()
+  const setThick = useSetThick()
   const setInCanvas = useSetInCanvas()
 
   const [isImg, setImg] = useState(false) // 캔버스에 이미지 표시 여부, false인 경우 <DropArea /> 표시
@@ -92,6 +93,9 @@ const Canvas = () => {
     undoCanvas,
     downCanvas,
     resetCanvas,
+    recoveryCanvas,
+    thick,
+    setThick,
   })
 
   // 마우스 엔터 핸들러
@@ -160,7 +164,7 @@ const Canvas = () => {
         onMouseEnter={onMouseEnter}
         className={`
           overflow-hidden select-none cursor-none
-          shadow-[0_1px_2px_rgba(0,0,0,0.07),0_2px_4px_rgba(0,0,0,0.07),0_4px_8px_rgba(0,0,0,0.07),0_8px_16px_rgba(0,0,0,0.07),0_16px_32px_rgba(0,0,0,0.07),0_32px_64px_rgba(0,0,0,0.07)]
+          shadow-[0px_19px_38px_rgba(0,0,0,0.3),0px_15px_12px_rgba(0,0,0,0.22)]
           transition-opacity duration-75 ease-in-out
           ${tool === 'crop' ? 'invisible' : ''}
           ${isLoading ? 'hidden' : ''}

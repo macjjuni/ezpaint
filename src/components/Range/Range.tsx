@@ -22,7 +22,7 @@ const Range = ({ onClose }: RangeProps) => {
   return (
     <div
       ref={rangeRef}
-      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg px-4 py-3 border border-gray-200/80 z-[10001]"
+      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg px-4 py-3 border border-gray-200/80 z-[9999]"
     >
       <div className="flex items-center gap-4">
         {/* Preview Circle */}

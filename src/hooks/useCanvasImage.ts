@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { kToast } from 'kku-ui'
 import {
   copyImageInCanvas,
@@ -38,7 +39,7 @@ export const useCanvasImage = ({
   /**
    * 캔버스 이미지를 클립보드에 복사
    */
-  const copyCanvas = () => {
+  const copyCanvas = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -48,12 +49,12 @@ export const useCanvasImage = ({
     setTimeout(() => {
       canvas.classList.remove('copy-done')
     }, 220)
-  }
+  }, [])
 
   /**
    * 클립보드 이미지를 캔버스에 붙여넣기
    */
-  const pasteCanvas = async () => {
+  const pasteCanvas = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -67,12 +68,12 @@ export const useCanvasImage = ({
     void saveToIndexedDB().catch((err) => {
       console.error('Failed to save to IndexedDB:', err)
     })
-  }
+  }, [resetData, setImg, saveCurrentImage, saveToIndexedDB])
 
   /**
    * 이미지 파일을 캔버스에 그리기
    */
-  const paintImage = async (imageFile: File) => {
+  const paintImage = useCallback(async (imageFile: File) => {
     try {
       const canvas = canvasRef.current
       if (!canvas) return
@@ -87,23 +88,23 @@ export const useCanvasImage = ({
       console.error('이미지 로드 실패:', err)
       kToast.error('이미지를 불러올 수 없습니다.')
     }
-  }
+  }, [setImg, saveCurrentImage, saveToIndexedDB])
 
   /**
    * 캔버스 이미지 다운로드
    */
-  const downCanvas = (e?: KeyboardEvent) => {
+  const downCanvas = useCallback((e?: KeyboardEvent) => {
     e?.preventDefault()
     const canvas = canvasRef.current
     if (!canvas) return
 
     downloadImage(canvas)
-  }
+  }, [])
 
   /**
    * 캔버스 초기화
    */
-  const resetCanvas = async () => {
+  const resetCanvas = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -121,12 +122,12 @@ export const useCanvasImage = ({
 
     // IndexedDB 데이터 삭제 완료까지 대기
     await clearIndexedDB()
-  }
+  }, [resetData, setTool, setInCanvas, setImg, clearIndexedDB])
 
   /**
    * 크롭 적용
    */
-  const cropConfig = async (cropData: ICanvasData) => {
+  const cropConfig = useCallback(async (cropData: ICanvasData) => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -138,7 +139,7 @@ export const useCanvasImage = ({
 
     // 이미지 그려진 후 IndexedDB에 저장
     await saveToIndexedDB()
-  }
+  }, [recoverSaveCanvas, saveToIndexedDB])
 
   return {
     copyCanvas,

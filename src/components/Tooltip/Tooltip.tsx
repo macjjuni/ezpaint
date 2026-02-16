@@ -7,7 +7,7 @@ const Tooltip = ({ text, show }: ITooltip) => {
   return (
     <div
       className={`
-        absolute top-full mt-2 left-1/2 -translate-x-1/2
+        absolute top-full mt-3 left-1/2 -translate-x-1/2
         text-xs font-medium px-2.5 py-1.5 rounded-md
         text-white bg-gray-900/95
         whitespace-nowrap opacity-0

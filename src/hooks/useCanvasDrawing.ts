@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useCallback } from 'react'
 import { drawCanvas, drawPoint } from '@/utils/canvas'
 
 interface UseCanvasDrawingProps {
@@ -23,9 +23,9 @@ export const useCanvasDrawing = ({
   saveToIndexedDB,
   setInCanvas,
 }: UseCanvasDrawingProps) => {
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [lastX, setLastX] = useState(0)
-  const [lastY, setLastY] = useState(0)
+  const isDrawingRef = useRef(false)
+  const lastXRef = useRef(0)
+  const lastYRef = useRef(0)
 
   /**
    * 캔버스 컨텍스트 가져오기
@@ -42,67 +42,66 @@ export const useCanvasDrawing = ({
   /**
    * 드로잉 시작
    */
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     const ctx = getCtx()
     const pos = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
 
     recoverSaveCanvas()
-    setIsDrawing(true) // 드로잉 시작
+    isDrawingRef.current = true // 드로잉 시작
 
-    setLastX(pos.x)
-    setLastY(pos.y)
+    lastXRef.current = pos.x
+    lastYRef.current = pos.y
 
     drawPoint(ctx, pos, color, thick)
     ctx.lineCap = 'round' // 스타일
     ctx.lineWidth = thick // 두께 적용
     ctx.strokeStyle = color // 색상 적용
-  }
+  }, [color, thick, recoverSaveCanvas])
 
   /**
    * 드로잉 중
    */
-  const draw = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (!isDrawing) return
+  const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    if (!isDrawingRef.current) return
 
     const ctx = getCtx()
-    const moveToXY = { x: lastX, y: lastY }
+    const moveToXY = { x: lastXRef.current, y: lastYRef.current }
     const lineToXY = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
     drawCanvas(ctx, moveToXY, lineToXY)
 
-    setLastX(e.nativeEvent.offsetX)
-    setLastY(e.nativeEvent.offsetY)
-  }
+    lastXRef.current = e.nativeEvent.offsetX
+    lastYRef.current = e.nativeEvent.offsetY
+  }, [])
 
   /**
    * 드로잉 종료
    */
-  const endDrawing = () => {
-    setIsDrawing(false)
+  const endDrawing = useCallback(() => {
+    isDrawingRef.current = false
     saveCurrentImage()
 
     // IndexedDB에 저장
     void saveToIndexedDB().catch((err) => {
       console.error('Failed to save to IndexedDB:', err)
     })
-  }
+  }, [saveCurrentImage, saveToIndexedDB])
 
   /**
    * 캔버스를 벗어났을 때 드로잉 종료
    */
-  const endDrawCursor = () => {
+  const endDrawCursor = useCallback(() => {
     // 그리기 중이었다면 그리기 종료 처리
-    if (isDrawing) {
-      setIsDrawing(false)
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false
       saveCurrentImage()
       void saveToIndexedDB().catch((err) => {
         console.error('Failed to save to IndexedDB:', err)
       })
     }
     setInCanvas(false)
-  }
+  }, [saveCurrentImage, saveToIndexedDB, setInCanvas])
 
   return {
-    isDrawing,
     startDrawing,
     draw,
     endDrawing,

@@ -6,6 +6,9 @@ interface UseCanvasKeyboardProps {
   undoCanvas: () => Promise<void>
   downCanvas: (e?: KeyboardEvent) => void
   resetCanvas: () => Promise<void>
+  recoveryCanvas: () => Promise<void>
+  thick: number
+  setThick: (thick: number) => void
 }
 
 /**
@@ -15,7 +18,10 @@ interface UseCanvasKeyboardProps {
  * - Ctrl+V: 붙여넣기
  * - Ctrl+Z: 실행 취소
  * - Ctrl+S: 다운로드
- * - Ctrl+R: 초기화
+ * - Ctrl+R: 휴지통 (전체 초기화)
+ * - Ctrl+F: 초기화 (원본 복구)
+ * - Ctrl++: 두께 증가
+ * - Ctrl+-: 두께 감소
  */
 export const useCanvasKeyboard = ({
   pasteCanvas,
@@ -23,6 +29,9 @@ export const useCanvasKeyboard = ({
   undoCanvas,
   downCanvas,
   resetCanvas,
+  recoveryCanvas,
+  thick,
+  setThick,
 }: UseCanvasKeyboardProps) => {
   useEffect(() => {
     const keyCheck = async (e: KeyboardEvent) => {
@@ -35,9 +44,27 @@ export const useCanvasKeyboard = ({
         e.preventDefault() // 브라우저 새로고침 방지
         await resetCanvas()
       }
+      else if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault() // 브라우저 찾기 기능 방지
+        await recoveryCanvas()
+      }
+      // 두께 증가 (Ctrl + +/=)
+      else if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+        e.preventDefault() // 브라우저 확대 방지
+        if (thick < 25) {
+          setThick(thick + 1)
+        }
+      }
+      // 두께 감소 (Ctrl + -)
+      else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+        e.preventDefault() // 브라우저 축소 방지
+        if (thick > 1) {
+          setThick(thick - 1)
+        }
+      }
     }
 
     window.addEventListener('keydown', keyCheck)
     return () => window.removeEventListener('keydown', keyCheck)
-  }, [pasteCanvas, copyCanvas, undoCanvas, downCanvas, resetCanvas])
+  }, [pasteCanvas, copyCanvas, undoCanvas, downCanvas, resetCanvas, recoveryCanvas, thick, setThick])
 }
