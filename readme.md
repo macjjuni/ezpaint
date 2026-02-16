@@ -181,7 +181,15 @@ Core drawing logic in `src/utils/canvas.ts`:
 
 ## 📝 License
 
+This project is licensed under the MIT License - see below for details.
+
 MIT © [macjjuni](https://github.com/macjjuni)
+
+### Third-party Licenses
+
+This project uses the following open-source libraries:
+
+- **react-image-crop** - ISC License
 
 <br>
 
